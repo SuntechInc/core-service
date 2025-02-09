@@ -17,11 +17,11 @@
     FROM node:22.13.1-alpine
     WORKDIR /app
     
-    # Instala PNPM (ou npm/yarn)
+    # Instala PNPM globalmente
     RUN npm install -g pnpm@8.14.0
     
-    # Instala openssl pra evitar avisos do Prisma
-    RUN apt-get update && apt-get install -y openssl
+    # Instala OpenSSL no Alpine para evitar avisos do Prisma
+    RUN apk add --no-cache openssl
     
     # Copia arquivos de dependência para instalar só prod
     COPY package.json pnpm-lock.yaml ./
