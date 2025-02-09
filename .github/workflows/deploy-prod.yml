@@ -10,52 +10,79 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 📌 1️⃣ Checkout do código
+      - name: Checkout do repositório
         uses: actions/checkout@v3
 
-      - name: Docker Login
+      # 📌 2️⃣ Login no Docker Hub
+      - name: Login no Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
         run: |
+          echo "🔑 Logando no Docker Hub..."
           echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          echo "✅ Login bem-sucedido!"
 
-      - name: Build & Push Docker
+      # 📌 3️⃣ Build e Push da Imagem Docker
+      - name: Build e Push da imagem para Produção
         run: |
+          echo "🚀 Construindo imagem Docker..."
           docker build -t ${{ secrets.DOCKER_USERNAME }}/core-service:prod .
+          
+          echo "📤 Enviando imagem para Docker Hub..."
           docker push ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+          
+          echo "✅ Imagem enviada com sucesso!"
 
-          - name: Deploy via SSH
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.VPS_HOST }}
-            username: ${{ secrets.VPS_USER }}
-            key: ${{ secrets.VPS_SSH_KEY }}
-            envs: DATABASE_URL_PROD
-            script: |
-              echo "Verificando variável DATABASE_URL_PROD no servidor:"
-              echo "$DATABASE_URL_PROD" # Verificação
-              
-              docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+      # 📌 4️⃣ Deploy via SSH para VPS
+      - name: Conectar à VPS e fazer deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: DATABASE_URL_PROD
+          script: |
+            echo "🔗 Conectado à VPS, iniciando deploy..."
 
-              if [ "$(docker ps -q -f name=core_service)" ]; then
-                docker stop core_service
-                docker rm core_service
-              fi
+            # 📌 5️⃣ Verificar se a variável DATABASE_URL_PROD está configurada corretamente
+            echo "🔍 Verificando DATABASE_URL_PROD..."
+            if [ -z "$DATABASE_URL_PROD" ]; then
+              echo "❌ ERRO: DATABASE_URL_PROD não está definida!"
+              exit 1
+            else
+              echo "✅ DATABASE_URL_PROD está OK!"
+            fi
 
-              echo "Rodando migrations..."
-              docker run --rm \
-                --network=projects_default \
-                -e DATABASE_URL="$DATABASE_URL_PROD" \
-                ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
-                npx prisma migrate deploy
+            # 📌 6️⃣ Atualizar a imagem do Core Service
+            echo "📥 Baixando nova versão da imagem..."
+            docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:prod
 
-              echo "Subindo container..."
-              docker run -d \
-                --network=projects_default \
-                -e DATABASE_URL="$DATABASE_URL_PROD" \
-                --name core_service \
-                -p 3334:3334 \
-                ${{ secrets.DOCKER_USERNAME }}/core-service:prod
-        env:
-          DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
+            # 📌 7️⃣ Parar e remover o container antigo (se existir)
+            if [ "$(docker ps -q -f name=core_service)" ]; then
+              echo "🛑 Parando container antigo..."
+              docker stop core_service
+              docker rm core_service
+            else
+              echo "⚠️ Nenhum container antigo encontrado, pulando etapa."
+            fi
+
+            # 📌 8️⃣ Rodar migrations do Prisma
+            echo "⚙️ Rodando migrations do Prisma..."
+            docker run --rm \
+              --network=projects_default \
+              -e DATABASE_URL="$DATABASE_URL_PROD" \
+              ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
+              npx prisma migrate deploy
+            echo "✅ Migrations aplicadas com sucesso!"
+
+            # 📌 9️⃣ Iniciar novo container da Produção
+            echo "🚀 Iniciando novo container de produção..."
+            docker run -d \
+              --network=projects_default \
+              -e DATABASE_URL="$DATABASE_URL_PROD" \
+              --name core_service \
+              -p 3334:3334 \
+              ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+            echo "✅ Deploy finalizado com sucesso!"
