@@ -31,10 +31,6 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-
-          env:
-            DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
-
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:prod
 
@@ -43,7 +39,7 @@ jobs:
               docker rm core_service
             fi
 
-            export DATABASE_URL="$DATABASE_URL_PROD"
+            export DATABASE_URL="${DATABASE_URL_PROD}"
             docker run --rm \
               --network=projects_default \
               -e DATABASE_URL="$DATABASE_URL" \
@@ -56,3 +52,5 @@ jobs:
               --name core_service \
               -p 3334:3334 \
               ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+        env:
+          DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
