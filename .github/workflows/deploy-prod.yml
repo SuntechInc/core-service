@@ -38,15 +38,17 @@ jobs:
       # 📌 4️⃣ Deploy via SSH para VPS
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
+        env:
+          DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          # Lista de variáveis que serão passadas ao SSH:
           envs: DATABASE_URL_PROD
           script: |
             echo "🔗 Conectado à VPS, iniciando deploy..."
 
-            # 📌 5️⃣ Verificar se a variável DATABASE_URL_PROD está configurada corretamente
             echo "🔍 Verificando DATABASE_URL_PROD..."
             if [ -z "$DATABASE_URL_PROD" ]; then
               echo "❌ ERRO: DATABASE_URL_PROD não está definida!"
@@ -55,11 +57,9 @@ jobs:
               echo "✅ DATABASE_URL_PROD está OK!"
             fi
 
-            # 📌 6️⃣ Atualizar a imagem do Core Service
             echo "📥 Baixando nova versão da imagem..."
             docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:prod
 
-            # 📌 7️⃣ Parar e remover o container antigo (se existir)
             if [ "$(docker ps -q -f name=core_service)" ]; then
               echo "🛑 Parando container antigo..."
               docker stop core_service
@@ -68,20 +68,18 @@ jobs:
               echo "⚠️ Nenhum container antigo encontrado, pulando etapa."
             fi
 
-            # 📌 8️⃣ Rodar migrations do Prisma dentro da mesma network
             echo "⚙️ Rodando migrations do Prisma..."
-            export DATABASE_URL="${DATABASE_URL_PROD}"  # 🔥 IMPORTANTE: Certifica que a variável está disponível!
+            export DATABASE_URL="${DATABASE_URL_PROD}"
             docker run --rm \
-              --network=polaris_network \  # 🔥 Usa a mesma network do docker-compose!
+              --network=polaris_network \
               -e DATABASE_URL="$DATABASE_URL" \
               ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
               npx prisma migrate deploy
             echo "✅ Migrations aplicadas com sucesso!"
 
-            # 📌 9️⃣ Iniciar novo container da Produção na mesma network
             echo "🚀 Iniciando novo container de produção..."
             docker run -d \
-              --network=polaris_network \  # 🔥 Usa a mesma network do docker-compose!
+              --network=polaris_network \
               -e DATABASE_URL="$DATABASE_URL" \
               --name core_service \
               -p 3334:3334 \
