@@ -1,0 +1,58 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker Login
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+        run: |
+          echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      - name: Build & Push Docker
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/core-service:prod .
+          docker push ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+
+          env:
+            DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
+
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+
+            if [ "$(docker ps -q -f name=core_service)" ]; then
+              docker stop core_service
+              docker rm core_service
+            fi
+
+            export DATABASE_URL="$DATABASE_URL_PROD"
+            docker run --rm \
+              --network=projects_default \
+              -e DATABASE_URL="$DATABASE_URL" \
+              ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
+              npx prisma migrate deploy
+
+            docker run -d \
+              --network=projects_default \
+              -e DATABASE_URL="$DATABASE_URL" \
+              --name core_service \
+              -p 3334:3334 \
+              ${{ secrets.DOCKER_USERNAME }}/core-service:prod
