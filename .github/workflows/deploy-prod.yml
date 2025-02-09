@@ -25,32 +25,37 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/core-service:prod .
           docker push ${{ secrets.DOCKER_USERNAME }}/core-service:prod
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+          - name: Deploy via SSH
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ secrets.VPS_HOST }}
+            username: ${{ secrets.VPS_USER }}
+            key: ${{ secrets.VPS_SSH_KEY }}
+            envs: DATABASE_URL_PROD
+            script: |
+              echo "Verificando variável DATABASE_URL_PROD no servidor:"
+              echo "$DATABASE_URL_PROD" # Verificação
+              
+              docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:prod
 
-            if [ "$(docker ps -q -f name=core_service)" ]; then
-              docker stop core_service
-              docker rm core_service
-            fi
+              if [ "$(docker ps -q -f name=core_service)" ]; then
+                docker stop core_service
+                docker rm core_service
+              fi
 
-            export DATABASE_URL="${DATABASE_URL_PROD}"
-            docker run --rm \
-              --network=projects_default \
-              -e DATABASE_URL="$DATABASE_URL" \
-              ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
-              npx prisma migrate deploy
+              echo "Rodando migrations..."
+              docker run --rm \
+                --network=projects_default \
+                -e DATABASE_URL="$DATABASE_URL_PROD" \
+                ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
+                npx prisma migrate deploy
 
-            docker run -d \
-              --network=projects_default \
-              -e DATABASE_URL="$DATABASE_URL" \
-              --name core_service \
-              -p 3334:3334 \
-              ${{ secrets.DOCKER_USERNAME }}/core-service:prod
+              echo "Subindo container..."
+              docker run -d \
+                --network=projects_default \
+                -e DATABASE_URL="$DATABASE_URL_PROD" \
+                --name core_service \
+                -p 3334:3334 \
+                ${{ secrets.DOCKER_USERNAME }}/core-service:prod
         env:
           DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
