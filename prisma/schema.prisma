@@ -28,6 +28,13 @@ model Company {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([legalName, taxId, email])
   @@map("companies")
-  @@unique([legalName,taxId,email])
+}
+
+model Test {
+  id   String @id @default(cuid()) @map("id_tste")
+  name String
+
+  @@map("tests")
 }

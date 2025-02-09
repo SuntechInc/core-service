@@ -3,56 +3,81 @@ name: Deploy Staging
 on:
   push:
     branches:
-      - develop
+      - staging
 
 jobs:
   build-and-deploy-staging:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout do repositório
         uses: actions/checkout@v3
 
-      - name: Docker Login
+      - name: Login no Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
         run: |
+          echo "🔑 Logando no Docker Hub..."
           echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          echo "✅ Login bem-sucedido!"
 
-      - name: Build & Push Docker
+      - name: Build e Push da imagem para Staging
         run: |
+          echo "🚀 Construindo imagem Docker..."
           docker build -t ${{ secrets.DOCKER_USERNAME }}/core-service:staging .
+          echo "📤 Enviando imagem para Docker Hub..."
           docker push ${{ secrets.DOCKER_USERNAME }}/core-service:staging
+          echo "✅ Imagem enviada com sucesso!"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
+        env:
+          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-
-          env:
-            DATABASE_URL_HOMOLOG: ${{ secrets.DATABASE_URL_HOMOLOG }}
-
+          envs: DATABASE_URL_STAGING
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:staging
+            echo "🔗 Conectado à VPS, iniciando deploy..."
 
-            if [ "$(docker ps -q -f name=core_service_staging)" ]; then
-              docker stop core_service_staging
-              docker rm core_service_staging
+            echo "🔍 Verificando DATABASE_URL_STAGING..."
+            if [ -z "$DATABASE_URL_STAGING" ]; then
+              echo "❌ ERRO: DATABASE_URL_STAGING não está definida!"
+              exit 1
+            else
+              echo "✅ DATABASE_URL_STAGING está OK!"
             fi
 
-            export DATABASE_URL="$DATABASE_URL_HOMOLOG"
+            echo "📥 Baixando nova versão da imagem..."
+            docker pull ${{ secrets.DOCKER_USERNAME }}/core-service:staging
+
+            echo "🌐 Garantindo que a network polaris_network existe..."
+            docker network inspect polaris_network >/dev/null 2>&1 || docker network create polaris_network
+
+            if [ "$(docker ps -aq -f name=core_service_staging)" ]; then
+              echo "🛑 Parando e removendo container antigo..."
+              docker stop core_service_staging
+              docker rm core_service_staging
+            else
+              echo "⚠️ Nenhum container antigo encontrado, pulando remoção."
+            fi
+
+            echo "⚙️ Rodando migrations do Prisma..."
+            export DATABASE_URL="${DATABASE_URL_STAGING}"
             docker run --rm \
-              --network=projects_default \
+              --network=polaris_network \
               -e DATABASE_URL="$DATABASE_URL" \
               ${{ secrets.DOCKER_USERNAME }}/core-service:staging \
               npx prisma migrate deploy
+            echo "✅ Migrations aplicadas com sucesso!"
 
+            echo "🚀 Iniciando novo container de homologação..."
             docker run -d \
-              --network=projects_default \
+              --network=polaris_network \
               -e DATABASE_URL="$DATABASE_URL" \
               --name core_service_staging \
-              -p 3335:3334 \
+              -p 3336:3336 \
               ${{ secrets.DOCKER_USERNAME }}/core-service:staging
+            echo "✅ Deploy finalizado com sucesso!"
