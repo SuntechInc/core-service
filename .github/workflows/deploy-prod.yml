@@ -36,7 +36,7 @@ jobs:
           echo "✅ Imagem enviada com sucesso!"
 
       # 📌 4️⃣ Deploy via SSH para VPS
-      - name: Conectar à VPS e fazer deploy
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -70,9 +70,10 @@ jobs:
 
             # 📌 8️⃣ Rodar migrations do Prisma
             echo "⚙️ Rodando migrations do Prisma..."
+            export DATABASE_URL="${DATABASE_URL_PROD}"  # 🔥 IMPORTANTE: Certifica que a variável está disponível!
             docker run --rm \
               --network=projects_default \
-              -e DATABASE_URL="$DATABASE_URL_PROD" \
+              -e DATABASE_URL="$DATABASE_URL" \
               ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
               npx prisma migrate deploy
             echo "✅ Migrations aplicadas com sucesso!"
@@ -81,7 +82,7 @@ jobs:
             echo "🚀 Iniciando novo container de produção..."
             docker run -d \
               --network=projects_default \
-              -e DATABASE_URL="$DATABASE_URL_PROD" \
+              -e DATABASE_URL="$DATABASE_URL" \
               --name core_service \
               -p 3334:3334 \
               ${{ secrets.DOCKER_USERNAME }}/core-service:prod
