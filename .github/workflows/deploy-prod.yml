@@ -68,20 +68,20 @@ jobs:
               echo "⚠️ Nenhum container antigo encontrado, pulando etapa."
             fi
 
-            # 📌 8️⃣ Rodar migrations do Prisma
+            # 📌 8️⃣ Rodar migrations do Prisma dentro da mesma network
             echo "⚙️ Rodando migrations do Prisma..."
             export DATABASE_URL="${DATABASE_URL_PROD}"  # 🔥 IMPORTANTE: Certifica que a variável está disponível!
             docker run --rm \
-              --network=projects_default \
+              --network=polaris_network \  # 🔥 Usa a mesma network do docker-compose!
               -e DATABASE_URL="$DATABASE_URL" \
               ${{ secrets.DOCKER_USERNAME }}/core-service:prod \
               npx prisma migrate deploy
             echo "✅ Migrations aplicadas com sucesso!"
 
-            # 📌 9️⃣ Iniciar novo container da Produção
+            # 📌 9️⃣ Iniciar novo container da Produção na mesma network
             echo "🚀 Iniciando novo container de produção..."
             docker run -d \
-              --network=projects_default \
+              --network=polaris_network \  # 🔥 Usa a mesma network do docker-compose!
               -e DATABASE_URL="$DATABASE_URL" \
               --name core_service \
               -p 3334:3334 \
