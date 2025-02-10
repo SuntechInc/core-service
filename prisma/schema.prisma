@@ -31,10 +31,3 @@ model Company {
   @@unique([legalName, taxId, email])
   @@map("companies")
 }
-
-model Test {
-  id   String @id @default(cuid()) @map("id_tste")
-  name String
-
-  @@map("tests")
-}
