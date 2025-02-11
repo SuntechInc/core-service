@@ -1,0 +1,32 @@
+model Employee {
+    id       String  @id @default(cuid()) @map("id_employee")
+    branchId String  @map("id_branch")
+    branch   Branch  @relation(fields: [branchId], references: [id])
+    name     String  @map("employee_name")
+    email    String  @unique @map("employee_email")
+    phone    String? @map("employee_phone")
+
+    jobTitleVersionId String          @map("id_job_title_version")
+    jobTitleVersion   JobTitleVersion @relation(fields: [jobTitleVersionId], references: [id])
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    departmentId String     @map("id_department")
+    department   Department @relation(fields: [departmentId], references: [id])
+
+    @@map("employees")
+}
+
+enum EmploymentType {
+    CLT
+    PJ
+}
+
+enum EmployeeStatus {
+    EM_PROCESSO // Ainda em fase de admissão
+    ATIVO // Funcionário ativo e validado pelo RH
+    FERIAS // Funcionário em período de férias
+    AFASTADO // Funcionário afastado (ex.: licença médica)
+    DESLIGADO // Funcionário desligado da empresa
+}
