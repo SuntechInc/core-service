@@ -1,32 +1,34 @@
 model Employee {
-    id       String  @id @default(cuid()) @map("id_employee")
-    branchId String  @map("id_branch")
-    branch   Branch  @relation(fields: [branchId], references: [id])
-    name     String  @map("employee_name")
-    email    String  @unique @map("employee_email")
-    phone    String? @map("employee_phone")
+    id                String  @id @default(cuid()) @map("id_employee")
+    name              String  @map("employee_name")
+    email             String  @unique @map("employee_email")
+    phone             String? @map("employee_phone")
+    departmentId      String  @map("id_department")
+    branchId          String  @map("id_branch")
+    jobTitleVersionId String  @map("id_job_title_version")
 
-    jobTitleVersionId String          @map("id_job_title_version")
-    jobTitleVersion   JobTitleVersion @relation(fields: [jobTitleVersionId], references: [id])
+    employmentType EmploymentType @default(FULL_TIME) @map("employment_type")
+    status         EmployeeStatus @default(IN_PROCESS) @map("employee_status")
 
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
 
-    departmentId String     @map("id_department")
-    department   Department @relation(fields: [departmentId], references: [id])
+    jobTitleVersion JobTitleVersion @relation(fields: [jobTitleVersionId], references: [id])
+    branch          Branch          @relation(fields: [branchId], references: [id])
+    department      Department      @relation(fields: [departmentId], references: [id])
 
     @@map("employees")
 }
 
 enum EmploymentType {
-    CLT
-    PJ
+    FULL_TIME
+    CONTRACTOR
 }
 
 enum EmployeeStatus {
-    EM_PROCESSO // Ainda em fase de admissão
-    ATIVO // Funcionário ativo e validado pelo RH
-    FERIAS // Funcionário em período de férias
-    AFASTADO // Funcionário afastado (ex.: licença médica)
-    DESLIGADO // Funcionário desligado da empresa
+    IN_PROCESS // Ainda em fase de admissão
+    ACTIVE // Funcionário ativo e validado pelo RH
+    ON_LEAVE // Funcionário em período de férias
+    SUSPENDED // Funcionário afastado (ex.: licença médica)
+    TERMINATED // Funcionário desligado da empresa
 }
