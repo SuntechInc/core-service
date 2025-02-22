@@ -1,7 +1,7 @@
 import { PrismaService } from 'src/shared/infrastructure/database/prisma.service';
 import { CreateCompanyDto } from '../../../application/dtos/create-company.dto';
 import { CompanyRepository } from '../../../domain/repositories/company.repository';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Company } from 'src/modules/company/domain/entities/company.entity';
 import { CompanyMapper } from 'src/modules/company/application/mappers/company.mapper';
 @Injectable()
@@ -10,7 +10,7 @@ export class CompanyPrismaRepository implements CompanyRepository {
   async create(entity: Company): Promise<Company> {
     const record = await this.prisma.company.create({
       data: {
-        tradingName: entity.tradingName, // Agora os getters permitem acessar
+        tradingName: entity.tradingName,
         legalName: entity.legalName,
         email: entity.email,
         taxId: entity.taxId,
@@ -23,9 +23,13 @@ export class CompanyPrismaRepository implements CompanyRepository {
 
     return CompanyMapper.toDomain(record);
   }
-  // findById(id: string): Promise<Company | null> {
-  //   throw new Error('Method not implemented.');
-  // }
+  async findById(id: string): Promise<Company> {
+    const record = await this.prisma.company.findUnique({
+      where: { id },
+    });
+
+    return record ? CompanyMapper.toDomain(record) : null;
+  }
   // findByTaxId(taxId: string): Promise<Company | null> {
   //   throw new Error('Method not implemented.');
   // }
