@@ -2,7 +2,7 @@ import { Industry } from '../value-objects/industry.enum';
 import { Segment } from '../value-objects/segment.enum';
 
 export class Company {
-  private readonly _id: string;
+  private readonly _id?: string;
   private _tradingName: string;
   private _legalName: string;
   private _taxId: string;
@@ -11,11 +11,10 @@ export class Company {
   private _industry: Industry;
   private _segment: Segment;
   private _isActive: boolean;
-  private _createdAt: Date;
-  private _updatedAt: Date;
+  private _createdAt?: Date;
+  private _updatedAt?: Date;
 
   constructor(
-    id: string,
     tradingName: string,
     legalName: string,
     taxId: string,
@@ -24,10 +23,7 @@ export class Company {
     segment: Segment,
     phone?: string,
     isActive: boolean = true,
-    createdAt?: Date,
-    updatedAt?: Date,
   ) {
-    this._id = id;
     this._tradingName = tradingName;
     this._legalName = legalName;
     this._taxId = taxId;
@@ -36,8 +32,6 @@ export class Company {
     this._segment = segment;
     this._phone = phone;
     this._isActive = isActive;
-    this._createdAt = createdAt;
-    this._updatedAt = updatedAt;
 
     this.validate();
   }
@@ -59,12 +53,36 @@ export class Company {
     return this._id;
   }
 
+  get tradingName(): string {
+    return this._tradingName;
+  }
+
+  get legalName(): string {
+    return this._legalName;
+  }
+
+  get taxId(): string {
+    return this._taxId;
+  }
+
+  get email(): string {
+    return this._email;
+  }
+
+  get phone(): string {
+    return this._phone;
+  }
+
   get industry(): Industry {
     return this._industry;
   }
 
   get segment(): Segment {
     return this._segment;
+  }
+
+  get isActive(): boolean {
+    return this._isActive;
   }
 
   set industry(industry: Industry) {

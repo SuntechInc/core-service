@@ -1,4 +1,3 @@
-import { $Enums, Prisma } from '@prisma/client';
 import {
   IsBoolean,
   IsEnum,
@@ -7,6 +6,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Industry } from '../../domain/value-objects/industry.enum';
+import { Segment } from '../../domain/value-objects/segment.enum';
 
 export class CreateCompanyDto {
   @IsString()
@@ -30,13 +30,14 @@ export class CreateCompanyDto {
   phone?: string;
 
   @IsNotEmpty()
-  @IsEnum(Industry)
-  industry: $Enums.Industry;
+  @IsEnum(Industry, { message: 'segment must be a valid enum value' })
+  industry: Industry;
 
   @IsNotEmpty()
-  @IsEnum(Industry)
-  segment: $Enums.Segment;
+  @IsEnum(Segment, { message: 'segment must be a valid enum value' })
+  segment: Segment;
   
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 }
