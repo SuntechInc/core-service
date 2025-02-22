@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CreateCompanyDto } from '../../application/dtos/create-company.dto';
 import { CreateCompanyUseCase } from '../../application/use-cases/create-company.use-case';
 import { CompanyMapper } from '../../application/mappers/company.mapper';
@@ -16,7 +16,7 @@ export class CompanyController {
     const company = CompanyMapper.fromDto(dto);
     return await this.createCompanyUseCase.create(company);
   }
-
+  @Get('id')
   async findById(@Param(':id') id: string) {
     return await this.findCompanyByIdUseCase.execute(id);
   }
