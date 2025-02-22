@@ -16,8 +16,8 @@ export class CompanyController {
     const company = CompanyMapper.fromDto(dto);
     return await this.createCompanyUseCase.create(company);
   }
-  @Get('id')
-  async findById(@Param(':id') id: string) {
+  @Get(':id')
+  async findById(@Param('id') id: string) {
     return await this.findCompanyByIdUseCase.execute(id);
   }
 }
