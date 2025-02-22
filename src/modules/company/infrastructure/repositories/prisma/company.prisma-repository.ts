@@ -36,9 +36,20 @@ export class CompanyPrismaRepository implements CompanyRepository {
   // findAll(): Promise<Company[]> {
   //   throw new Error('Method not implemented.');
   // }
-  // update(id: string, company: Partial<Company>): Promise<Company> {
-  //   throw new Error('Method not implemented.');
-  // }
+  async update(id: string, company: Partial<Company>): Promise<Company> {
+    const existingCompany = await this.findById(id);
+
+    if (!existingCompany) return null;
+
+    const updatedCompany = await this.prisma.company.update({
+      where: { id },
+      data: {
+        ...company,
+      },
+    });
+
+    return CompanyMapper.toDomain(updatedCompany);
+  }
   // delete(id: string): Promise<void> {
   //   throw new Error('Method not implemented.');
   // }

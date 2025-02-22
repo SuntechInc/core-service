@@ -4,6 +4,7 @@ import { CreateCompanyUseCase } from './application/use-cases/create-company.use
 import { CompanyController } from './infrastructure/controllers/company.controller';
 import { CompanyRepository } from './domain/repositories/company.repository';
 import { FindCompanyByIdUseCase } from './application/use-cases/find-company-by-id.use-case';
+import { UpdateCompanyUseCase } from './application/use-cases/update-company.use-case';
 
 @Module({
   controllers: [CompanyController],
@@ -12,7 +13,9 @@ import { FindCompanyByIdUseCase } from './application/use-cases/find-company-by-
       provide: CompanyRepository,
       useClass: CompanyPrismaRepository,
     },
-    CreateCompanyUseCase, FindCompanyByIdUseCase
+    CreateCompanyUseCase,
+    FindCompanyByIdUseCase,
+    UpdateCompanyUseCase,
   ],
 })
 export class CompanyModule {}
