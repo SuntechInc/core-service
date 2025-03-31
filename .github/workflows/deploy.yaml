@@ -7,6 +7,7 @@ on:
       - develop
 
 env:
+  # Nome da imagem no Docker Hub
   IMAGE_NAME: lucassuntech/core-service
 
 jobs:
@@ -21,32 +22,84 @@ jobs:
 
       - name: Build e Push da Imagem
         run: |
-          TAG=$( [[ "${{ github.ref }}" == "refs/heads/main" ]] && echo "latest" || echo "develop" )
+          # Define a TAG dependendo da branch (main -> latest, develop -> develop)
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            TAG="latest"
+          else
+            TAG="develop"
+          fi
+
           docker build -t $IMAGE_NAME:$TAG .
           docker push $IMAGE_NAME:$TAG
 
   deploy:
+    # Só inicia o deploy depois que a imagem foi buildada e enviada
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH na VPS
+      - name: Copiar manifestos (Produção)
+        # Só copia se for branch main
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "k8s/prod/core-service"  # local (no repositório)
+          target: "/home/devops/k8s/core/prod"  # destino na VPS
+          overwrite: true
+
+      - name: Copiar manifestos (Homolog)
+        # Só copia se for branch develop
+        if: github.ref == 'refs/heads/develop'
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "k8s/homolog/core-service"
+          target: "/home/devops/k8s/core/homolog"
+          overwrite: true
+
+      - name: Aplicar Deploy no K3s
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            # Ajustar o kubeconfig
             export KUBECONFIG=/home/devops/.kube/config
-            cd ~/k8s/core
 
+            # Se for branch main => produção
             if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-              kubectl apply -f prod/deployment.yaml
-              kubectl apply -f prod/service.yaml
-              kubectl apply -f prod/ingressroute.yaml
+              echo "🚀 Deploy em Produção"
+              cd /home/devops/k8s/core/prod/core-service
+
+              # Aplica os manifestos
+              kubectl apply -f deployment.yaml
+              kubectl apply -f service.yaml
+              kubectl apply -f ingressroute.yaml
+
+              # Reinicia o deployment
               kubectl rollout restart deployment core-deployment -n core-prod
-            else
-              kubectl apply -f homolog/deployment.yaml
-              kubectl apply -f homolog/service.yaml
-              kubectl apply -f homolog/ingressroute.yaml
+
+            # Se for branch develop => homolog
+            elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+              echo "🚀 Deploy em Homolog"
+              cd /home/devops/k8s/core/homolog/core-service
+
+              # Aplica os manifestos
+              kubectl apply -f deployment.yaml
+              kubectl apply -f service.yaml
+              kubectl apply -f ingressroute.yaml
+
+              # Reinicia o deployment
               kubectl rollout restart deployment core-deployment -n core-homolog
+            else
+              echo "Nenhum deploy aplicado pois branch não é main ou develop."
             fi
+
+        # Se quiser ter logs de saida do container, inclua:
+        #   kubectl logs -n core-prod deploy/core-deployment
+

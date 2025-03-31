@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: core-deployment
-  namespace: core-prod # ou core-homolog
+  namespace: core-homolog # ou core-homolog
 spec:
   replicas: 1
   selector:
