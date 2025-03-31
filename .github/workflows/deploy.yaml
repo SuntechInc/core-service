@@ -1,0 +1,52 @@
+name: Deploy Core Service
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+env:
+  IMAGE_NAME: lucassuntech/core-service
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v3
+
+      - name: Login no Docker Hub
+        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build e Push da Imagem
+        run: |
+          TAG=$( [[ "${{ github.ref }}" == "refs/heads/main" ]] && echo "latest" || echo "develop" )
+          docker build -t $IMAGE_NAME:$TAG .
+          docker push $IMAGE_NAME:$TAG
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH na VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            export KUBECONFIG=/home/devops/.kube/config
+            cd ~/k8s/core
+
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              kubectl apply -f prod/deployment.yaml
+              kubectl apply -f prod/service.yaml
+              kubectl apply -f prod/ingressroute.yaml
+              kubectl rollout restart deployment core-deployment -n core-prod
+            else
+              kubectl apply -f homolog/deployment.yaml
+              kubectl apply -f homolog/service.yaml
+              kubectl apply -f homolog/ingressroute.yaml
+              kubectl rollout restart deployment core-deployment -n core-homolog
+            fi

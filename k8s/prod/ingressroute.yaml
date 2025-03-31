@@ -1,0 +1,14 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: core-ingressroute
+  namespace: core-prod
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`core.qualityflow.com.br`)
+      kind: Rule
+      services:
+        - name: core-service
+          port: 3334
