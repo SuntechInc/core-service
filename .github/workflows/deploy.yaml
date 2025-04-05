@@ -34,45 +34,7 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Debug k8s folder (Production)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "Listando conteúdo de k8s (production):"
-          ls -R k8s
-          echo "Mostrando deployment.yaml se existir:"
-          cat k8s/prod/core-service/deployment.yaml || echo "deployment.yaml não encontrado"
-
-      - name: Copiar manifestos (Produção)
-        if: github.ref == 'refs/heads/main'
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "k8s/prod/core-service"
-          target: "/home/devops/k8s/core/prod"
-          overwrite: true
-
-      - name: Debug k8s folder (Homolog)
-        if: github.ref == 'refs/heads/develop'
-        run: |
-          echo "Listando conteúdo de k8s (homolog):"
-          ls -R k8s
-          echo "Mostrando deployment.yaml se existir:"
-          cat k8s/homolog/core-service/deployment.yaml || echo "deployment.yaml não encontrado"
-
-      - name: Copiar manifestos (Homolog)
-        if: github.ref == 'refs/heads/develop'
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "k8s/homolog/core-service"
-          target: "/home/devops/k8s/core/homolog"
-          overwrite: true
-
-      - name: Aplicar Deploy no K3s
+      - name: Aplicar Deploy no K3s via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -90,7 +52,7 @@ jobs:
               kubectl rollout restart deployment core-deployment -n core-prod
 
             elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-              echo "🚀 Deploy em Homolog"
+              echo "🚀 Deploy em Homologação"
               cd /home/devops/k8s/core/homolog/core-service
               kubectl apply -f deployment.yaml
               kubectl apply -f service.yaml
