@@ -155,7 +155,7 @@ model JobTitleVersion {
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./node_modules/@prisma/client"
+  output   = "../src/infrastructure/persistence/prisma-client"
 }
 
 datasource db {
