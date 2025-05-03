@@ -5,5 +5,5 @@ coverage
 .git
 .env
 .env.*
-prisma/*
-!prisma/schema.prisma 
+# prisma/*
+# !prisma/schema.prisma 
