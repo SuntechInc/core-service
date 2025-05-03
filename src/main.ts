@@ -1,15 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule,
-    new FastifyAdapter(),
+  const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Remove campos não definidos no DTO
+      forbidNonWhitelisted: true, // Retorna erro para campos desconhecidos
+      transform: true, // Converte tipos automaticamente
+    }),
   );
 
-
-  const port = process.env.PORT || 3334;
-  await app.listen(port, '0.0.0.0');
-  console.log(` Core Service is running on Fastify! Port: ${port}`);
+  const PORT = process.env.PORT || 3333;
+  await app.listen(PORT);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 }
+
 bootstrap();
