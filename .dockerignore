@@ -4,4 +4,6 @@ dist
 coverage
 .git
 .env
-.env.* 
+.env.*
+prisma/*
+!prisma/schema.prisma 

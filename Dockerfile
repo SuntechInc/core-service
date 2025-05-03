@@ -21,12 +21,9 @@
     RUN pnpm install --prod
     
     COPY --from=builder /app/dist ./dist
-    COPY --from=builder /app/prisma ./prisma
-    
-    # ✅ Copia o schema.prisma explicitamente (garantia extra)
-    COPY prisma ./prisma
+    COPY --from=builder /app/prisma/schema.prisma ./prisma/schema.prisma
     
     EXPOSE 3334
     
-    CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+    CMD ["sh", "-c", "npx prisma migrate deploy --schema ./prisma/schema.prisma && node dist/main.js"]
     
