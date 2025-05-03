@@ -26,8 +26,8 @@
     COPY --from=builder /app/dist ./dist
     COPY --from=builder /app/prisma ./prisma
     
-    # ✅ Copia também a lib do Prisma Client
-    COPY --from=builder /app/node_modules/@prisma /app/node_modules/@prisma
+    # Copia o node_modules inteiro para garantir que o Prisma Client e engines estejam presentes
+    COPY --from=builder /app/node_modules ./node_modules
     
     EXPOSE 3334
     
