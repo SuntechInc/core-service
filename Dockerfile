@@ -21,10 +21,15 @@
     RUN apk add --no-cache openssl
     
     COPY package.json pnpm-lock.yaml ./
-    RUN pnpm install --prod
+    # ❗ Usa o install completo para ter prisma e @prisma/client
+    RUN pnpm install
     
     COPY --from=builder /app/dist ./dist
     COPY --from=builder /app/prisma ./prisma
+    
+    # ✅ Copia o Prisma Client gerado do builder
+    COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
+    COPY --from=builder /app/node_modules/@prisma /app/node_modules/@prisma
     
     EXPOSE 3334
     
