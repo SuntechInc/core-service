@@ -10,6 +10,9 @@
     COPY . .
     RUN pnpm run build
     
+    # Gera Prisma Client na build
+    RUN npx prisma generate --schema ./prisma/schema.prisma
+    
     # ---- STAGE 2: Production ----
     FROM node:22.13.1-alpine
     WORKDIR /app
@@ -22,12 +25,9 @@
     
     COPY --from=builder /app/dist ./dist
     COPY --from=builder /app/prisma ./prisma
-    COPY prisma ./prisma
     
-    # ✅ Copiar o client gerado
+    # ✅ Copia também o Prisma Client gerado
     COPY --from=builder /app/src/infrastructure/persistence/prisma-client ./src/infrastructure/persistence/prisma-client
-    
-    RUN npx prisma generate --schema ./prisma/schema.prisma
     
     EXPOSE 3334
     
