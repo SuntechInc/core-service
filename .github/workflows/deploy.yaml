@@ -1,0 +1,53 @@
+name: Deploy Core-Service Production (K3s)
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: lucassuntech/core-service
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 📌 1️⃣ Checkout do código
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+
+      # 📌 2️⃣ Login no Docker Hub
+      - name: Login no Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # 📌 3️⃣ Build e Push da Imagem
+      - name: Build e Push da imagem para Produção
+        run: |
+          docker build -t $IMAGE_NAME:latest .
+          docker push $IMAGE_NAME:latest
+
+      # 📌 4️⃣ Deploy no K3s via SSH
+      - name: Deploy no K3s
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "🔗 Conectado à VPS."
+
+            export KUBECONFIG=/home/devops/.kube/config
+
+            cd /home/devops/k8s/core-service/prod
+
+            echo "📋 Aplicando YAMLs..."
+            kubectl apply -f deployment.yaml
+            kubectl apply -f service.yaml
+            kubectl apply -f ingressroute.yaml
+
+            echo "🔄 Forçando rollout restart para atualizar o pod..."
+            kubectl rollout restart deployment core-deployment -n core-prod
+
+            echo "✅ Deploy concluído!"
