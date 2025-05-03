@@ -20,10 +20,15 @@
     COPY package.json pnpm-lock.yaml ./
     RUN pnpm install --prod
     
+    # Copia o build e o schema completo
     COPY --from=builder /app/dist ./dist
-    COPY --from=builder /app/prisma/schema.prisma ./prisma/schema.prisma
+    COPY --from=builder /app/prisma ./prisma
+    
+    # ✅ Gera o Prisma Client na imagem de produção
+    RUN npx prisma generate --schema ./prisma/schema.prisma
     
     EXPOSE 3334
     
+    # Aplica migrations e inicia a aplicação
     CMD ["sh", "-c", "npx prisma migrate deploy --schema ./prisma/schema.prisma && node dist/main.js"]
     
