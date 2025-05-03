@@ -1,0 +1,43 @@
+model JobTitle {
+    id   String @id @default(cuid()) @map("id_job_title")
+    name String @map("job_title_name")
+
+    branchId String @map("id_branch")
+    branch   Branch @relation(fields: [branchId], references: [id])
+
+    // Relação 1:1 para a versão atual (opcional)
+    currentVersionId String?          @unique
+    currentVersion   JobTitleVersion? @relation(name: "CurrentJobTitleVersion", fields: [currentVersionId], references: [id])
+
+    // Relação 1:N para o histórico de versões
+    versions JobTitleVersion[] @relation(name: "JobTitleVersions")
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@unique([name, branchId])
+    @@map("job_titles")
+}
+
+model JobTitleVersion {
+    id String @id @default(cuid()) @map("id_job_title_version")
+
+    // (1) Relação 1:N com JobTitle para histórico
+    jobTitleId String   @map("id_job_title")
+    jobTitle   JobTitle @relation(name: "JobTitleVersions", fields: [jobTitleId], references: [id], onDelete: Cascade)
+
+    // (2) Relação 1:1 com JobTitle para "versão atual"
+    // O lado oposto é JobTitle.currentVersion
+    usedAsCurrentIn JobTitle? @relation(name: "CurrentJobTitleVersion")
+
+    version      Int     @default(1) @map("version_number")
+    salary       Decimal @map("salary")
+    requirements String? @map("requirements")
+
+    effectiveFrom DateTime @default(now()) @map("effective_from")
+    createdAt     DateTime @default(now()) @map("created_at")
+
+    @@unique([jobTitleId, version])
+    @@map("job_title_versions")
+    Employee Employee[]
+}
