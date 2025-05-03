@@ -26,9 +26,8 @@ RUN pnpm install --prod
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-# Copia o Prisma Client gerado
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copia o node_modules inteiro do estágio de build
+COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3334
 
