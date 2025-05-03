@@ -26,9 +26,6 @@
     COPY --from=builder /app/dist ./dist
     COPY --from=builder /app/prisma ./prisma
     
-    # ✅ Copia também o Prisma Client gerado
-    COPY --from=builder /app/src/infrastructure/persistence/prisma-client ./src/infrastructure/persistence/prisma-client
-    
     EXPOSE 3334
     
     CMD ["sh", "-c", "npx prisma migrate deploy --schema ./prisma/schema.prisma && node dist/main.js"]
