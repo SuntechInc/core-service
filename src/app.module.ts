@@ -6,7 +6,7 @@ import { PrismaModule } from './shared/infrastructure/database/prisma.module';
 
 @Module({
   imports: [PrismaModule, CompanyModule],
-  controllers: [AppController],
+  controllers: [HealthController],
   providers: [AppService],
 })
 export class AppModule {}
