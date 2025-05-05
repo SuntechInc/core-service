@@ -92,4 +92,16 @@ export class PrismaBranchRepository extends IBranchRepository {
     const branches = await this.prisma.branch.findMany();
     return branches.map(branch => this.toDomain(branch));
   }
+
+  async findByName(name: string): Promise<Branch[]> {
+    const branches = await this.prisma.branch.findMany({
+      where: {
+        name: {
+          contains: name,
+          mode: 'insensitive',
+        },
+      },
+    });
+    return branches.map(branch => this.toDomain(branch));
+  }
 } 

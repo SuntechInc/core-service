@@ -7,4 +7,5 @@ export abstract class IBranchRepository {
   abstract update(branch: Branch): Promise<Branch>;
   abstract delete(id: string): Promise<void>;
   abstract findAll(): Promise<Branch[]>;
+  abstract findByName(name: string): Promise<Branch[]>;
 } 
