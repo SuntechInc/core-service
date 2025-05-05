@@ -1,0 +1,8 @@
+export enum CompanyStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  CLOSED = 'CLOSED',
+  TRIAL = 'TRIAL',
+  CANCELLED = 'CANCELLED'
+} 

@@ -1,37 +1,47 @@
-import { IsOptional, IsString, IsEnum, IsBoolean } from 'class-validator';
+import { IsString, IsEmail, IsEnum, IsOptional, MinLength, Matches } from 'class-validator';
+import { CompanyStatus } from '../../domain/value-objects/company-status.enum';
 import { Industry } from '../../domain/value-objects/industry.enum';
 import { Segment } from '../../domain/value-objects/segment.enum';
 
 export class UpdateCompanyDto {
-  @IsOptional()
   @IsString()
+  @MinLength(3, { message: 'Trading name must be at least 3 characters long' })
+  @IsOptional()
   tradingName?: string;
 
-  @IsOptional()
   @IsString()
+  @MinLength(3, { message: 'Legal name must be at least 3 characters long' })
+  @IsOptional()
   legalName?: string;
 
-  @IsOptional()
   @IsString()
+  @MinLength(11, { message: 'Tax ID must be at least 11 characters long' })
+  @IsOptional()
   taxId?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
+  taxCountry?: string;
+
+  @IsEmail({}, { message: 'Invalid email format' })
+  @IsOptional()
   email?: string;
 
-  @IsOptional()
   @IsString()
+  @MinLength(10, { message: 'Phone number must be at least 10 characters long' })
+  @Matches(/^[0-9+\-() ]+$/, { message: 'Phone number can only contain numbers, +, -, () and spaces' })
+  @IsOptional()
   phone?: string;
 
+  @IsEnum(Industry, { message: 'Invalid industry' })
   @IsOptional()
-  @IsEnum(Industry, { message: 'industry must be a valid enum value' })
   industry?: Industry;
 
+  @IsEnum(Segment, { message: 'Invalid segment' })
   @IsOptional()
-  @IsEnum(Segment, { message: 'segment must be a valid enum value' })
   segment?: Segment;
 
+  @IsEnum(CompanyStatus, { message: 'Invalid company status' })
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
-}
+  status?: CompanyStatus;
+} 

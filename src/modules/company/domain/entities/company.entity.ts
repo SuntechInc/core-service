@@ -1,100 +1,87 @@
+import { CompanyStatus } from '../value-objects/company-status.enum';
 import { Industry } from '../value-objects/industry.enum';
 import { Segment } from '../value-objects/segment.enum';
 
-export class Company {
-  private readonly _id?: string;
-  private _tradingName: string;
-  private _legalName: string;
-  private _taxId: string;
-  private _email: string;
-  private _phone?: string;
-  private _industry: Industry;
-  private _segment: Segment;
-  private _isActive: boolean;
-  private _createdAt?: Date;
-  private _updatedAt?: Date;
+export interface CompanyProps {
+  id?: string;
+  tradingName: string;
+  legalName: string;
+  taxId: string;
+  taxCountry?: string;
+  email: string;
+  phone: string;
+  industry: Industry;
+  segment: Segment;
+  status?: CompanyStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-  constructor(
-    tradingName: string,
-    legalName: string,
-    taxId: string,
-    email: string,
-    industry: Industry,
-    segment: Segment,
-    phone?: string,
-    isActive: boolean = true,
-  ) {
-    this._tradingName = tradingName;
-    this._legalName = legalName;
-    this._taxId = taxId;
-    this._email = email;
-    this._industry = industry;
-    this._segment = segment;
-    this._phone = phone;
-    this._isActive = isActive;
+export class Company {
+  private readonly props: Required<CompanyProps>;
+
+  constructor(props: CompanyProps) {
+    this.props = {
+      ...props,
+      id: props.id ?? crypto.randomUUID(),
+      taxCountry: props.taxCountry ?? 'BR',
+      status: props.status ?? CompanyStatus.ACTIVE,
+      createdAt: props.createdAt ?? new Date(),
+      updatedAt: props.updatedAt ?? new Date(),
+    };
 
     this.validate();
   }
 
+  // -------- Getters --------
+  get id() { return this.props.id; }
+  get tradingName() { return this.props.tradingName; }
+  get legalName() { return this.props.legalName; }
+  get taxId() { return this.props.taxId; }
+  get taxCountry() { return this.props.taxCountry; }
+  get email() { return this.props.email; }
+  get phone() { return this.props.phone; }
+  get industry() { return this.props.industry; }
+  get segment() { return this.props.segment; }
+  get status() { return this.props.status; }
+  get createdAt() { return this.props.createdAt; }
+  get updatedAt() { return this.props.updatedAt; }
+
+  // -------- Domain logic --------
+  activate() { this.props.status = CompanyStatus.ACTIVE; }
+  deactivate() { this.props.status = CompanyStatus.INACTIVE; }
+  suspend() { this.props.status = CompanyStatus.SUSPENDED; }
+  close() { this.props.status = CompanyStatus.CLOSED; }
+  cancel() { this.props.status = CompanyStatus.CANCELLED; }
+  startTrial() { this.props.status = CompanyStatus.TRIAL; }
+
   private validate() {
-    if (!this._tradingName) throw new Error('Trading name is required');
-    if (!this._legalName) throw new Error('Legal name is required');
-    if (!this._taxId) throw new Error('Tax ID is required');
-    if (!this._email) throw new Error('Email is required');
-    if (!Object.values(Industry).includes(this._industry)) {
-      throw new Error(`Invalid industry value: ${this._industry}`);
+    if (!this.props.tradingName || this.props.tradingName.trim().length < 3) {
+      throw new Error('Company trading name must have at least 3 characters');
     }
-    if (!Object.values(Segment).includes(this._segment)) {
-      throw new Error(`Invalid segment value: ${this._segment}`);
+
+    if (!this.props.legalName || this.props.legalName.trim().length < 3) {
+      throw new Error('Company legal name must have at least 3 characters');
     }
-  }
 
-  get id(): string {
-    return this._id;
-  }
-
-  get tradingName(): string {
-    return this._tradingName;
-  }
-
-  get legalName(): string {
-    return this._legalName;
-  }
-
-  get taxId(): string {
-    return this._taxId;
-  }
-
-  get email(): string {
-    return this._email;
-  }
-
-  get phone(): string {
-    return this._phone;
-  }
-
-  get industry(): Industry {
-    return this._industry;
-  }
-
-  get segment(): Segment {
-    return this._segment;
-  }
-
-  get isActive(): boolean {
-    return this._isActive;
-  }
-
-  set industry(industry: Industry) {
-    if (!Object.values(Industry).includes(industry)) {
-      throw new Error(`Invalid industry value: ${industry}`);
+    if (!this.props.taxId || this.props.taxId.trim().length < 11) {
+      throw new Error('Tax ID must have at least 11 characters');
     }
-    this._industry = industry;
-  }
-  set segment(segment: Segment) {
-    if (!Object.values(Segment).includes(segment)) {
-      throw new Error(`Invalid segment value: ${segment}`);
+
+    if (!this.props.email || !/^[\w-.]+@[\w-]+\.[\w-.]+$/.test(this.props.email)) {
+      throw new Error('Invalid e-mail format');
     }
-    this._segment = segment;
+
+    if (!this.props.phone || this.props.phone.trim().length < 10) {
+      throw new Error('Phone number must have at least 10 characters');
+    }
+
+    if (!this.props.industry) {
+      throw new Error('Industry is required');
+    }
+
+    if (!this.props.segment) {
+      throw new Error('Segment is required');
+    }
   }
 }
