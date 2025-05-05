@@ -52,6 +52,13 @@ export class PrismaCompanyRepository extends ICompanyRepository {
     return raw ? this.toDomain(raw) : null;
   }
 
+  async findByTaxId(taxId: string): Promise<Company | null> {
+    const raw = await this.prisma.company.findUnique({
+      where: { taxId },
+    });
+    return raw ? this.toDomain(raw) : null;
+  }
+
   async update(entity: Company): Promise<Company> {
     const raw = await this.prisma.company.update({
       where: { id: entity.id },
@@ -71,6 +78,13 @@ export class PrismaCompanyRepository extends ICompanyRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.company.delete({ where: { id } });
+    await this.prisma.company.delete({
+      where: { id },
+    });
+  }
+
+  async findAll(): Promise<Company[]> {
+    const companies = await this.prisma.company.findMany();
+    return companies.map(company => this.toDomain(company));
   }
 } 
