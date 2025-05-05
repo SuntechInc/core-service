@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,7 @@ import { CreateCompanyDto } from '@/modules/company/application/dtos/create-comp
 import { CreateCompanyUseCase } from '@/modules/company/application/use-cases/create-company.use-case';
 import { ListCompaniesUseCase } from '@/modules/company/application/use-cases/list-companies/list-companies.use-case';
 import { FindCompanyByTaxIdUseCase } from '@/modules/company/application/use-cases/find-company-by-tax-id/find-company-by-tax-id.use-case';
+import { SoftDeleteCompanyUseCase } from '@/modules/company/application/use-cases/soft-delete-company/soft-delete-company.use-case';
 import { CompanyMapper } from '@/modules/company/application/mappers/company.mapper';
 // import { FindCompanyByIdUseCase } from '@/modules/company/application/use-cases/find-company-by-id.use-case';
 
@@ -23,6 +25,7 @@ export class CompanyController {
     private readonly createUC: CreateCompanyUseCase,
     private readonly listUC: ListCompaniesUseCase,
     private readonly findTaxIdUC: FindCompanyByTaxIdUseCase,
+    private readonly softDeleteUC: SoftDeleteCompanyUseCase,
     // private readonly findUC: FindCompanyByIdUseCase,
   ) {}
 
@@ -31,18 +34,18 @@ export class CompanyController {
   async create(@Body() body: CreateCompanyDto, @Res() response: Response) {
     const result = await this.createUC.execute(body);
     
-    if (result.isErr()) {
+    if (result.isFailure) {
       return {
         response: response
-          .status(result.unwrapErr().statusCode)
-          .json({ message: result.unwrapErr().message })
+          .status((result.errorValue() as any).statusCode || 400)
+          .json({ message: result.errorValue().message })
       };
     }
 
     return {
       response: response
         .status(HttpStatus.CREATED)
-        .json(CompanyMapper.toResponseDto(result.unwrap()))
+        .json(CompanyMapper.toResponseDto(result.getValue()))
     };
   }
 
@@ -61,18 +64,18 @@ export class CompanyController {
   async findByTaxId(@Param('taxId') taxId: string, @Res() response: Response) {
     const result = await this.findTaxIdUC.execute(taxId);
     
-    if (result.isErr()) {
+    if (result.isFailure) {
       return {
         response: response
-          .status(result.unwrapErr().statusCode)
-          .json({ message: result.unwrapErr().message })
+          .status((result.errorValue() as any).statusCode || 400)
+          .json({ message: result.errorValue().message })
       };
     }
 
     return {
       response: response
         .status(HttpStatus.OK)
-        .json(CompanyMapper.toResponseDto(result.unwrap()))
+        .json(CompanyMapper.toResponseDto(result.getValue()))
     };
   }
 
@@ -96,5 +99,19 @@ export class CompanyController {
   ) {
     // implementar ListCompaniesUseCase se/ quando precisar
     return res.status(501).json({ message: 'Not implemented' });
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async softDelete(@Param('id') id: string, @Res() response: Response) {
+    const result = await this.softDeleteUC.execute(id);
+    if (result.isFailure) {
+      return {
+        response: response.status((result.errorValue() as any).statusCode || 400).json({ message: result.errorValue().message })
+      };
+    }
+    return {
+      response: response.status(HttpStatus.NO_CONTENT).json({ message: 'Company set to INACTIVE (soft deleted)' })
+    };
   }
 } 

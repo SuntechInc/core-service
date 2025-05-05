@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ICompanyRepository } from '../../application/ports/company.repository';
-import { Company } from '../../domain/entities/company.entity';
+
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
+import { ICompanyRepository } from '../../ports/company.repository';
+import { Company } from '@/modules/company/domain/entities/company.entity';
 
 @Injectable()
 export class FindCompanyByTaxIdUseCase {
@@ -13,13 +14,13 @@ export class FindCompanyByTaxIdUseCase {
       const company = await this.companyRepository.findByTaxId(taxId);
       if (!company) {
         return Result.fail<Company>(
-          new AppError.NotFound(`Company with taxId ${taxId} not found`),
+          AppError.NotFound(`Company with taxId ${taxId} not found`),
         );
       }
       return Result.ok<Company>(company);
     } catch (error) {
       return Result.fail<Company>(
-        new AppError.UnexpectedError(error),
+        AppError.UnexpectedError(error),
       );
     }
   }

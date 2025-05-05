@@ -1,4 +1,5 @@
-import { Company } from '../../domain/entities/company.entity';
+import { Company } from "@/modules/company/domain/entities/company.entity";
+
 
 export class ListCompaniesResponseDto {
   id: string;

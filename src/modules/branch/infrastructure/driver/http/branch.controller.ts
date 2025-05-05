@@ -25,18 +25,18 @@ export class BranchController {
   async create(@Body() body: CreateBranchDto, @Res() response: Response) {
     const result = await this.createUC.execute(body);
     
-    if (result.isErr()) {
+    if (result.isFailure) {
       return {
         response: response
-          .status(result.unwrapErr().statusCode)
-          .json({ message: result.unwrapErr().message })
+          .status((result.errorValue() as any).statusCode || 400)
+          .json({ message: result.errorValue().message })
       };
     }
 
     return {
       response: response
         .status(HttpStatus.CREATED)
-        .json(BranchMapper.toResponseDto(result.unwrap()))
+        .json(BranchMapper.toResponseDto(result.getValue()))
     };
   }
 } 

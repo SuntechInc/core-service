@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ICompanyRepository } from '../../application/ports/company.repository';
-import { Company } from '../../domain/entities/company.entity';
+import { ICompanyRepository } from '../../ports/company.repository';
+import { Company } from '@/modules/company/domain/entities/company.entity';
+
 
 @Injectable()
 export class ListCompaniesUseCase {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { IBranchRepository } from '../../application/ports/branch.repository';
-import { Branch } from '../../domain/entities/branch.entity';
-import { CreateBranchDto } from '../../application/dtos/create-branch.dto';
+import { IBranchRepository } from '@/modules/branch/application/ports/branch.repository';
+import { Branch } from '@/modules/branch/domain/entities/branch.entity';
+import { CreateBranchDto } from '@/modules/branch/application/dtos/create-branch.dto';
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
 import { UniqueEntityID } from '@/shared/core/unique-entity-id';
@@ -31,7 +31,7 @@ export class CreateBranchUseCase {
       return Result.ok<Branch>(createdBranch);
     } catch (error) {
       return Result.fail<Branch>(
-        new AppError.UnexpectedError(error),
+        AppError.UnexpectedError(error),
       );
     }
   }

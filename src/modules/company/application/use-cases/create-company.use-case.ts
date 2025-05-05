@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ICompanyRepository } from '../../application/ports/company.repository';
-import { Company } from '../../domain/entities/company.entity';
-import { CreateCompanyDto } from '../../application/dtos/create-company.dto';
-import { Result } from '../../../../shared/core/result';
-import { AppError } from '../../../../shared/core/app-error';
-import { UniqueEntityID } from '../../../../shared/core/unique-entity-id';
+import { ICompanyRepository } from '@/modules/company/application/ports/company.repository';
+import { Company } from '@/modules/company/domain/entities/company.entity';
+import { CreateCompanyDto } from '@/modules/company/application/dtos/create-company.dto';
+import { Result } from '@/shared/core/result';
+import { AppError } from '@/shared/core/app-error';
+import { UniqueEntityID } from '@/shared/core/unique-entity-id';
+
 
 @Injectable()
 export class CreateCompanyUseCase {

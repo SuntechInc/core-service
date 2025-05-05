@@ -3,6 +3,7 @@ import { PrismaService } from '@/shared/infrastructure/database/prisma.service';
 import { IBranchRepository } from '@/modules/branch/application/ports/branch.repository';
 import { Branch } from '@/modules/branch/domain/entities/branch.entity';
 import { Prisma, Branch as PrismaBranch } from '@prisma/client';
+import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 
 @Injectable()
 export class PrismaBranchRepository extends IBranchRepository {
@@ -25,7 +26,7 @@ export class PrismaBranchRepository extends IBranchRepository {
       addressId: raw.addressId ?? undefined,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-    }, raw.id);
+    }, new UniqueEntityID(raw.id));
   }
 
   // ---------- CRUD ----------

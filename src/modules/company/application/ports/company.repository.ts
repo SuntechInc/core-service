@@ -1,4 +1,5 @@
-import { Company } from '../../domain/entities/company.entity';
+import { Company } from "../../domain/entities/company.entity";
+
 
 export abstract class ICompanyRepository {
   abstract create(company: Company): Promise<Company>;

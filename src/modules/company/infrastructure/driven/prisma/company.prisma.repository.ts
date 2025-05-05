@@ -3,6 +3,7 @@ import { PrismaService } from '@/shared/infrastructure/database/prisma.service';
 import { ICompanyRepository } from '@/modules/company/application/ports/company.repository';
 import { Company } from '@/modules/company/domain/entities/company.entity';
 import { Prisma, Company as PrismaCompany } from '@prisma/client';
+import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 
 @Injectable()
 export class PrismaCompanyRepository extends ICompanyRepository {
@@ -12,8 +13,7 @@ export class PrismaCompanyRepository extends ICompanyRepository {
 
   // ---------- helpers ----------
   private toDomain(raw: PrismaCompany): Company {
-    return new Company({
-      id: raw.id,
+    return Company.create({
       tradingName: raw.tradingName,
       legalName: raw.legalName ?? undefined,
       taxId: raw.taxId ?? undefined,
@@ -25,7 +25,7 @@ export class PrismaCompanyRepository extends ICompanyRepository {
       status: raw.status as any,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-    });
+    }, new UniqueEntityID(raw.id));
   }
 
   // ---------- CRUD ----------
