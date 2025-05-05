@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCompanyDto } from '../dtos/create-company.dto';
+import { ICompanyRepository } from '../../application/ports/company.repository';
 import { Company } from '../../domain/entities/company.entity';
-import { ICompanyRepository } from '../ports/company.repository';
-import { Result, ok, err } from '@/shared/result';
-import { AppError } from '@/shared/errors/app.error';
-
+import { CreateCompanyDto } from '../../application/dtos/create-company.dto';
+import { Result } from '@/shared/core/result';
+import { AppError } from '@/shared/core/app-error';
+import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 
 @Injectable()
 export class CreateCompanyUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  async execute(dto: CreateCompanyDto): Promise<Result<AppError, Company>> {
+  async execute(dto: CreateCompanyDto): Promise<Result<Company>> {
     try {
-      const company = new Company({
+      const company = Company.create({
         tradingName: dto.tradingName,
         legalName: dto.legalName,
         taxId: dto.taxId,
@@ -21,15 +21,18 @@ export class CreateCompanyUseCase {
         phone: dto.phone,
         industry: dto.industry,
         segment: dto.segment,
-      });
+        status: dto.status,
+        addressId: dto.addressId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }, new UniqueEntityID());
 
-      const savedCompany = await this.companyRepository.create(company);
-      return ok(savedCompany);
-    } catch (error: any) {
-      if (error.code === 'P2002') {
-        return err(new AppError('Company with this tax ID or email already exists', 409));
-      }
-      return err(new AppError('Unexpected error', 500));
+      const createdCompany = await this.companyRepository.create(company);
+      return Result.ok<Company>(createdCompany);
+    } catch (error) {
+      return Result.fail<Company>(
+        new AppError.UnexpectedError(error),
+      );
     }
   }
 }
