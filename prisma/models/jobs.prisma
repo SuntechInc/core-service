@@ -1,43 +1,45 @@
 model JobTitle {
-    id   String @id @default(cuid()) @map("id_job_title")
-    name String @map("job_title_name")
+  id         String   @id @default(cuid())                @map("id_job_title")
+  companyId  String  @map("id_company")                 
+  name       String   @map("job_title_name")
+  code       String?  @map("job_title_code")
+  createdAt  DateTime @default(now())                     @map("created_at")
+  versions   JobTitleVersion[]
 
-    branchId String @map("id_branch")
-    branch   Branch @relation(fields: [branchId], references: [id])
+  // Relações
+  branch     Branch   @relation(fields: [branchId], references: [id])
+  branchId   String   @map("id_branch")
 
-    // Relação 1:1 para a versão atual (opcional)
-    currentVersionId String?          @unique
-    currentVersion   JobTitleVersion? @relation(name: "CurrentJobTitleVersion", fields: [currentVersionId], references: [id])
-
-    // Relação 1:N para o histórico de versões
-    versions JobTitleVersion[] @relation(name: "JobTitleVersions")
-
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-
-    @@unique([name, branchId])
-    @@map("job_titles")
+  @@unique([companyId, name])
+  @@map("job_titles")
 }
 
 model JobTitleVersion {
-    id String @id @default(cuid()) @map("id_job_title_version")
+  id            String   @id @default(cuid())             @map("id_job_title_version")
+  jobTitleId    String   @map("id_job_title")
+  versionNumber Int      @map("version_number")
+  effectiveFrom DateTime @map("effective_from")
+  salaryMin     Decimal? @map("salary_min")
+  salaryMax     Decimal? @map("salary_max")
+  description   String?
 
-    // (1) Relação 1:N com JobTitle para histórico
-    jobTitleId String   @map("id_job_title")
-    jobTitle   JobTitle @relation(name: "JobTitleVersions", fields: [jobTitleId], references: [id], onDelete: Cascade)
+  jobTitle      JobTitle @relation(fields: [jobTitleId], references: [id])
+  employees     Employee[]
+  jobTitleHistory EmployeeJobTitleHistory[]
 
-    // (2) Relação 1:1 com JobTitle para "versão atual"
-    // O lado oposto é JobTitle.currentVersion
-    usedAsCurrentIn JobTitle? @relation(name: "CurrentJobTitleVersion")
+  @@unique([jobTitleId, versionNumber])
+  @@map("job_title_versions")
+}
 
-    version      Int     @default(1) @map("version_number")
-    salary       Decimal @map("salary")
-    requirements String? @map("requirements")
+model EmployeeJobTitleHistory {
+  employeeId          String  @map("id_employee")
+  jobTitleVersionId   String  @map("id_job_title_version")
+  assignedAt          DateTime @default(now())            @map("assigned_at")
+  removedAt           DateTime?                           @map("removed_at")
 
-    effectiveFrom DateTime @default(now()) @map("effective_from")
-    createdAt     DateTime @default(now()) @map("created_at")
+  employee            Employee        @relation(fields: [employeeId], references: [id])
+  jobTitleVersion     JobTitleVersion @relation(fields: [jobTitleVersionId], references: [id])
 
-    @@unique([jobTitleId, version])
-    @@map("job_title_versions")
-    Employee Employee[]
+  @@id([employeeId, jobTitleVersionId, assignedAt])
+  @@map("employee_job_title_history")
 }

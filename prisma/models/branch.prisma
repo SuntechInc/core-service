@@ -1,0 +1,35 @@
+model Branch {
+    id          String   @id @default(cuid()) @map("id_branch")
+    name        String   @map("branch_name")
+    officialId  String?  @map("official_id") 
+    sigla       String?  @map("branch_sigla") 
+    email       String?  @map("branch_email")
+    phone       String?  @map("branch_phone")
+    responsible String?  @map("responsible_name") 
+    isHeadquarter Boolean @default(false) @map("is_headquarter")
+    status BranchStatus @default(ACTIVE) @map("branch_status")
+    
+    address     Address? @relation(fields: [addressId], references: [id])
+    addressId   String?  @unique @map("id_address")
+    
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    company     Company  @relation(fields: [companyId], references: [id])
+    companyId   String   @map("id_company")
+
+    departments Department[]
+    employees   Employee[]
+    jobTitles   JobTitle[]
+
+    @@unique([name, companyId])
+    @@map("branches")
+}
+
+
+enum BranchStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+    OBSOLETE
+}
