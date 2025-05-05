@@ -1,5 +1,5 @@
-import { Entity } from '@/shared/core/entity';
-import { UniqueEntityID } from '@/shared/core/unique-entity-id';
+import { Entity } from '../../../../shared/core/entity';
+import { UniqueEntityID } from '../../../../shared/core/unique-entity-id';
 import { CompanyStatus } from '../enums/company-status.enum';
 import { Industry } from '../enums/industry.enum';
 import { Segment } from '../enums/segment.enum';

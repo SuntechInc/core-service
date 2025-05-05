@@ -1,5 +1,5 @@
-import { Entity } from '@/shared/core/entity';
-import { UniqueEntityID } from '@/shared/core/unique-entity-id';
+import { Entity } from '../../../../shared/core/entity';
+import { UniqueEntityID } from '../../../../shared/core/unique-entity-id';
 import { BranchStatus } from '../enums/branch-status.enum';
 
 interface BranchProps {
