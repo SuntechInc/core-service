@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service'
+import { PrismaService } from '@/shared/infrastructure/database/prisma.service'
 import { Employee } from '@/modules/employee/domain/entities/employee.entity'
 import { EmploymentType } from '@/modules/employee/domain/enums/employment-type.enum'
 import { EmployeeStatus } from '@/modules/employee/domain/enums/employee-status.enum'
@@ -59,6 +59,14 @@ export class EmployeePrismaRepository extends IEmployeeRepository {
   async findById(id: string): Promise<Employee | null> {
     const raw = await this.prisma.employee.findUnique({
       where: { id },
+    })
+
+    return raw ? this.toDomain(raw) : null
+  }
+
+  async findByEmail(email: string): Promise<Employee | null> {
+    const raw = await this.prisma.employee.findUnique({
+      where: { email },
     })
 
     return raw ? this.toDomain(raw) : null

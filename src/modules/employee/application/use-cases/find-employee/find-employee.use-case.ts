@@ -1,15 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common'
 import { Either, left, right } from '@/core/either'
-import { IEmployeeRepository } from '@/modules/employee/domain/repositories/employee.repository'
 import { Employee } from '@/modules/employee/domain/entities/employee.entity'
+import { IEmployeeRepository } from '@/modules/employee/application/repositories/employee.repository'
 import { EMPLOYEE_REPOSITORY } from '@/modules/employee/employee.tokens'
 
-type FindEmployeeUseCaseResponse = Either<
-  Error,
-  {
-    employee: Employee
-  }
->
+type FindEmployeeUseCaseResponse = Either<Error, { employee: Employee | null }>
 
 @Injectable()
 export class FindEmployeeUseCase {
@@ -21,10 +16,6 @@ export class FindEmployeeUseCase {
   async execute(id: string): Promise<FindEmployeeUseCaseResponse> {
     try {
       const employee = await this.employeeRepository.findById(id)
-
-      if (!employee) {
-        return left(new Error('Employee not found'))
-      }
 
       return right({
         employee,

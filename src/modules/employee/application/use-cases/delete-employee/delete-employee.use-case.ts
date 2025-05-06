@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common'
 import { Either, left, right } from '@/core/either'
-import { IEmployeeRepository } from '@/modules/employee/domain/repositories/employee.repository'
+import { IEmployeeRepository } from '@/modules/employee/application/repositories/employee.repository'
 import { EMPLOYEE_REPOSITORY } from '@/modules/employee/employee.tokens'
 
 type DeleteEmployeeUseCaseResponse = Either<Error, void>
