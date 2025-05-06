@@ -63,6 +63,11 @@ export class JobTitleVersion extends AggregateRoot<JobTitleVersionProps> {
     return this.props.updatedAt
   }
 
+  public updateVersion(version: number): void {
+    this.props.version = version
+    this.props.updatedAt = new Date()
+  }
+
   public updateDescription(description: string): void {
     this.props.description = description
     this.props.updatedAt = new Date()

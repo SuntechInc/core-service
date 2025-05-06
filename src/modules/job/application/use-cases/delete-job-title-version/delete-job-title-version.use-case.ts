@@ -1,32 +1,22 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Inject } from '@nestjs/common'
 import { Either, left, right } from '@/core/either'
 import { IJobTitleVersionRepository } from '@/modules/job/domain/repositories/job-title-version.repository'
-import { JobTitleVersion } from '@/modules/job/domain/entities/job-title-version.entity'
+import { JOB_TITLE_VERSION_REPOSITORY } from '@/modules/job/job.tokens'
 
-type DeleteJobTitleVersionUseCaseResponse = Either<
-  Error,
-  {
-    jobTitleVersion: JobTitleVersion
-  }
->
+type DeleteJobTitleVersionUseCaseResponse = Either<Error, void>
 
 @Injectable()
 export class DeleteJobTitleVersionUseCase {
-  constructor(private readonly jobTitleVersionRepository: IJobTitleVersionRepository) {}
+  constructor(
+    @Inject(JOB_TITLE_VERSION_REPOSITORY)
+    private readonly jobTitleVersionRepository: IJobTitleVersionRepository,
+  ) {}
 
   async execute(id: string): Promise<DeleteJobTitleVersionUseCaseResponse> {
     try {
-      const jobTitleVersion = await this.jobTitleVersionRepository.findById(id)
-
-      if (!jobTitleVersion) {
-        return left(new Error('Job title version not found'))
-      }
-
       await this.jobTitleVersionRepository.delete(id)
 
-      return right({
-        jobTitleVersion,
-      })
+      return right(undefined)
     } catch (error) {
       return left(error as Error)
     }

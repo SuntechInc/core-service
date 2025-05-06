@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Inject } from '@nestjs/common'
 import { Either, left, right } from '@/core/either'
 import { IJobTitleVersionRepository } from '@/modules/job/domain/repositories/job-title-version.repository'
 import { JobTitleVersion } from '@/modules/job/domain/entities/job-title-version.entity'
 import { CreateJobTitleVersionDto } from '@/modules/job/application/dtos/create-job-title-version.dto'
+import { JOB_TITLE_VERSION_REPOSITORY } from '@/modules/job/job.tokens'
 
 type CreateJobTitleVersionUseCaseResponse = Either<
   Error,
@@ -13,7 +14,10 @@ type CreateJobTitleVersionUseCaseResponse = Either<
 
 @Injectable()
 export class CreateJobTitleVersionUseCase {
-  constructor(private readonly jobTitleVersionRepository: IJobTitleVersionRepository) {}
+  constructor(
+    @Inject(JOB_TITLE_VERSION_REPOSITORY)
+    private readonly jobTitleVersionRepository: IJobTitleVersionRepository,
+  ) {}
 
   async execute(
     data: CreateJobTitleVersionDto,
@@ -25,7 +29,7 @@ export class CreateJobTitleVersionUseCase {
       )
 
       if (jobTitleVersionExists) {
-        return left(new Error('Job title version already exists'))
+        return left(new Error('Job title version with this version already exists'))
       }
 
       const jobTitleVersion = JobTitleVersion.create({

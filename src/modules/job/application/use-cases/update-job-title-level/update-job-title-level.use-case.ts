@@ -3,7 +3,7 @@ import { Either, left, right } from '@/core/either'
 import { IJobTitleLevelRepository } from '@/modules/job/domain/repositories/job-title-level.repository'
 import { JobTitleLevel } from '@/modules/job/domain/entities/job-title-level.entity'
 import { CreateJobTitleLevelDto } from '@/modules/job/application/dtos/create-job-title-level.dto'
-import { JOB_TITLE_LEVEL_REPOSITORY } from '@/modules/job/job.module'
+import { JOB_TITLE_LEVEL_REPOSITORY } from '@/modules/job/job.tokens'
 
 type UpdateJobTitleLevelUseCaseResponse = Either<
   Error,

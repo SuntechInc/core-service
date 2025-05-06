@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Inject } from '@nestjs/common'
 import { Either, left, right } from '@/core/either'
 import { IJobTitleLevelRepository } from '@/modules/job/domain/repositories/job-title-level.repository'
 import { JobTitleLevel } from '@/modules/job/domain/entities/job-title-level.entity'
 import { CreateJobTitleLevelDto } from '@/modules/job/application/dtos/create-job-title-level.dto'
+import { JOB_TITLE_LEVEL_REPOSITORY } from '@/modules/job/job.tokens'
 
 type CreateJobTitleLevelUseCaseResponse = Either<
   Error,
@@ -13,7 +14,10 @@ type CreateJobTitleLevelUseCaseResponse = Either<
 
 @Injectable()
 export class CreateJobTitleLevelUseCase {
-  constructor(private readonly jobTitleLevelRepository: IJobTitleLevelRepository) {}
+  constructor(
+    @Inject(JOB_TITLE_LEVEL_REPOSITORY)
+    private readonly jobTitleLevelRepository: IJobTitleLevelRepository,
+  ) {}
 
   async execute(
     data: CreateJobTitleLevelDto,
@@ -25,7 +29,7 @@ export class CreateJobTitleLevelUseCase {
       )
 
       if (jobTitleLevelExists) {
-        return left(new Error('Job title level already exists'))
+        return left(new Error('Job title level with this label already exists'))
       }
 
       const jobTitleLevel = JobTitleLevel.create({

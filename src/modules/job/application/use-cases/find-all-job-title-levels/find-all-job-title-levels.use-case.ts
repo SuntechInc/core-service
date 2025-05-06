@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Inject } from '@nestjs/common'
 import { Either, left, right } from '@/core/either'
 import { IJobTitleLevelRepository } from '@/modules/job/domain/repositories/job-title-level.repository'
 import { JobTitleLevel } from '@/modules/job/domain/entities/job-title-level.entity'
+import { JOB_TITLE_LEVEL_REPOSITORY } from '@/modules/job/job.tokens'
 
 type FindAllJobTitleLevelsUseCaseResponse = Either<
   Error,
@@ -12,7 +13,10 @@ type FindAllJobTitleLevelsUseCaseResponse = Either<
 
 @Injectable()
 export class FindAllJobTitleLevelsUseCase {
-  constructor(private readonly jobTitleLevelRepository: IJobTitleLevelRepository) {}
+  constructor(
+    @Inject(JOB_TITLE_LEVEL_REPOSITORY)
+    private readonly jobTitleLevelRepository: IJobTitleLevelRepository,
+  ) {}
 
   async execute(
     jobTitleVersionId: string,

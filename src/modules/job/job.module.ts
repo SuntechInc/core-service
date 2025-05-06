@@ -24,10 +24,11 @@ import { IJobTitleRepository } from '@/modules/job/domain/repositories/job-title
 import { IJobTitleVersionRepository } from '@/modules/job/domain/repositories/job-title-version.repository'
 import { IJobTitleLevelRepository } from '@/modules/job/domain/repositories/job-title-level.repository'
 import { PrismaModule } from '@/shared/infrastructure/database/prisma.module'
-
-export const JOB_TITLE_REPOSITORY = Symbol('JOB_TITLE_REPOSITORY')
-export const JOB_TITLE_VERSION_REPOSITORY = Symbol('JOB_TITLE_VERSION_REPOSITORY')
-export const JOB_TITLE_LEVEL_REPOSITORY = Symbol('JOB_TITLE_LEVEL_REPOSITORY')
+import {
+  JOB_TITLE_REPOSITORY,
+  JOB_TITLE_VERSION_REPOSITORY,
+  JOB_TITLE_LEVEL_REPOSITORY,
+} from './job.tokens'
 
 @Module({
   imports: [PrismaModule],
