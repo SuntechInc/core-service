@@ -1,12 +1,24 @@
 import { Module } from '@nestjs/common';
-import { HealthController } from './health.controller';
-import { AppService } from './app.service';
-import { CompanyModule } from './modules/company/company.module';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './shared/infrastructure/database/prisma.module';
+import { CompanyModule } from './modules/company/company.module';
+import { BranchModule } from './modules/branch/branch.module';
+import { JobModule } from './modules/job/job.module';
+import { EmployeeModule } from './modules/employee/employee.module';
 
 @Module({
-  imports: [PrismaModule, CompanyModule],
-  controllers: [HealthController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    PrismaModule,
+    CompanyModule,
+    BranchModule,
+    JobModule,
+    EmployeeModule,
+  ],
+  controllers: [],
+  providers: [],
+
 })
-export class AppModule {}
+export class AppModule {} 

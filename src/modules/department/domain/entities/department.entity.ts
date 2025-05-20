@@ -1,0 +1,46 @@
+import { Entity } from '../../../../shared/core/entity';
+import { UniqueEntityID } from '../../../../shared/core/unique-entity-id';
+import { DepartmentStatus } from '../enums/department-status.enum';
+
+interface DepartmentProps {
+  name: string;
+  description?: string;
+  status: DepartmentStatus;
+  branchId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class Department extends Entity<DepartmentProps> {
+  private constructor(props: DepartmentProps, id?: UniqueEntityID) {
+    super(props, id?.toString());
+  }
+
+  static create(props: DepartmentProps, id?: UniqueEntityID): Department {
+    return new Department(props, id);
+  }
+
+  get name(): string {
+    return this.props.name;
+  }
+
+  get description(): string | undefined {
+    return this.props.description;
+  }
+
+  get status(): DepartmentStatus {
+    return this.props.status;
+  }
+
+  get branchId(): string {
+    return this.props.branchId;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
+} 

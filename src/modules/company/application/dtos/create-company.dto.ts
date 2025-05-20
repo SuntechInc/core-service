@@ -1,43 +1,42 @@
-import {
-  IsBoolean,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { Industry } from '../../domain/value-objects/industry.enum';
-import { Segment } from '../../domain/value-objects/segment.enum';
+import { IsEmail, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { CompanyStatus } from '../../domain/enums/company-status.enum';
+import { Industry } from '../../domain/enums/industry.enum';
+import { Segment } from '../../domain/enums/segment.enum';
 
 export class CreateCompanyDto {
   @IsString()
-  @IsNotEmpty()
   tradingName: string;
 
   @IsString()
-  @IsNotEmpty()
-  legalName: string;
+  @IsOptional()
+  legalName?: string;
 
   @IsString()
-  @IsNotEmpty()
-  taxId: string;
+  @IsOptional()
+  taxId?: string;
 
   @IsString()
-  @IsNotEmpty()
-  email: string;
+  @IsOptional()
+  taxCountry?: string;
+
+  @IsEmail()
+  @IsOptional()
+  email?: string;
 
   @IsString()
   @IsOptional()
   phone?: string;
 
-  @IsNotEmpty()
-  @IsEnum(Industry, { message: 'segment must be a valid enum value' })
+  @IsEnum(Industry)
   industry: Industry;
 
-  @IsNotEmpty()
-  @IsEnum(Segment, { message: 'segment must be a valid enum value' })
+  @IsEnum(Segment)
   segment: Segment;
-  
+
+  @IsEnum(CompanyStatus)
+  status: CompanyStatus;
+
+  @IsUUID()
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  addressId?: string;
 }
