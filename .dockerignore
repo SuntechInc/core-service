@@ -7,3 +7,4 @@ coverage
 .env.*
 # prisma/*
 # !prisma/schema.prisma 
+erd.svg

@@ -6,10 +6,10 @@ generator client {
   // output   = "../src/infrastructure/persistence/prisma-client"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-  output = "./erd.svg"
-}
+// generator erd {
+//   provider = "prisma-erd-generator"
+//   output = "./erd.svg"
+// }
 
 datasource db {
   provider = "postgresql"
