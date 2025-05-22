@@ -13,7 +13,7 @@
     
     # copia apenas o schema e gera o client
     COPY prisma/schema.prisma ./prisma/
-    RUN npx prisma generate
+    RUN npx prisma generate --schema=./prisma/schema.prisma
     
     # ---- STAGE 2: Build da aplicação ----
     FROM deps AS builder
@@ -35,8 +35,7 @@
     COPY --from=builder /app/dist ./dist
     # copia prisma/schema e client gerado
     COPY --from=deps /app/prisma ./prisma
-    RUN mkdir -p ./node_modules/.prisma
-    COPY --from=deps /app/node_modules/@prisma/client ./node_modules/@prisma/client
+    COPY --from=deps /app/node_modules ./node_modules
     
     EXPOSE 3334
     
