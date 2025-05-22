@@ -1,10 +1,8 @@
-# .github/workflows/deploy-core-service.yaml
-name: Deploy Core-Service Production (K3s)
+name: Deploy Core-Service Production
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 env:
   IMAGE_NAME: lucassuntech/core-service
@@ -12,56 +10,36 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout do código
       - uses: actions/checkout@v3
 
-      # 2️⃣ Login no Docker Hub
-      - name: Login no Docker Hub
+      - name: Build & Push Docker Image
         run: |
-          echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" \
-            | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      # 3️⃣ Build & Push da Imagem
-      - name: Build e Push da imagem para Produção
-        run: |
+          echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
 
-      # 4️⃣ Deploy no K3s via SSH
-      - name: Deploy no K3s
+      - name: Trigger Kubernetes rollout
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ci-deploy
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            echo "🔗 Conectando à VPS..."
             export KUBECONFIG=/home/ci-deploy/.kube/config
 
-            echo "📋 Indo para o diretório k8s/core-service/prod"
-            cd /home/ci-deploy/k8s/core-service/prod
-
-            echo "📋 Aplicando YAMLs..."
-            kubectl apply -f deployment.yaml -n core-prod
-            kubectl apply -f service.yaml    -n core-prod
-            kubectl apply -f ingressroute.yaml -n core-prod
-
-            echo "🔄 Atualizando a imagem no Deployment e garantindo pullPolicy=Always..."
+            # Atualiza apenas a imagem
             kubectl set image deployment/core-service \
               core-service=$IMAGE_NAME:latest \
-              -n core-prod \
-              --record
+              -n core-prod
 
+            # Garante que sempre vai puxar a latest
             kubectl patch deployment core-service \
               -n core-prod \
               --type=json \
               -p='[{"op":"replace","path":"/spec/template/spec/containers/0/imagePullPolicy","value":"Always"}]'
 
-            echo "🔄 Rolando o rollout e aguardando conclusão..."
+            # Aguarda rollout zero-downtime
             kubectl rollout status deployment/core-service \
               -n core-prod \
               --timeout=120s
-
-            echo "✅ Deploy concluído!"
