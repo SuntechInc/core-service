@@ -1,37 +1,36 @@
-# .github/workflows/deploy-core-service.yml
+# .github/workflows/deploy-core-service.yaml
 name: Deploy Core-Service Production (K3s)
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 env:
   IMAGE_NAME: lucassuntech/core-service
-  NAMESPACE: core-prod
-  DEPLOYMENT: core-service   # certifique-se de que bate com metadata.name em deployment.yaml
 
 jobs:
   build-and-deploy:
-    name: Build, Push & Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do repositório
-        uses: actions/checkout@v3
+      # 1️⃣ Checkout do código
+      - uses: actions/checkout@v3
 
+      # 2️⃣ Login no Docker Hub
       - name: Login no Docker Hub
         run: |
           echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" \
             | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build e Push da imagem
+      # 3️⃣ Build & Push da Imagem
+      - name: Build e Push da imagem para Produção
         run: |
           docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
 
-      - name: Deploy no K3s via SSH
+      # 4️⃣ Deploy no K3s via SSH
+      - name: Deploy no K3s
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -41,22 +40,28 @@ jobs:
             echo "🔗 Conectando à VPS..."
             export KUBECONFIG=/home/ci-deploy/.kube/config
 
+            echo "📋 Indo para o diretório k8s/core-service/prod"
             cd /home/ci-deploy/k8s/core-service/prod
 
-            echo "📋 Atualizando Deployment com a nova imagem..."
-            kubectl set image deployment/$DEPLOYMENT \
-              core-service=$IMAGE_NAME:latest \
-              -n $NAMESPACE
+            echo "📋 Aplicando YAMLs..."
+            kubectl apply -f deployment.yaml -n core-prod
+            kubectl apply -f service.yaml    -n core-prod
+            kubectl apply -f ingressroute.yaml -n core-prod
 
-            echo "🔄 Garantindo pullPolicy=Always..."
-            kubectl patch deployment $DEPLOYMENT \
-              -n $NAMESPACE \
+            echo "🔄 Atualizando a imagem no Deployment e garantindo pullPolicy=Always..."
+            kubectl set image deployment/core-service \
+              core-service=$IMAGE_NAME:latest \
+              -n core-prod \
+              --record
+
+            kubectl patch deployment core-service \
+              -n core-prod \
               --type=json \
               -p='[{"op":"replace","path":"/spec/template/spec/containers/0/imagePullPolicy","value":"Always"}]'
 
-            echo "🔄 Rolando o rollout e aguardando..."
-            kubectl rollout status deployment/$DEPLOYMENT \
-              -n $NAMESPACE \
+            echo "🔄 Rolando o rollout e aguardando conclusão..."
+            kubectl rollout status deployment/core-service \
+              -n core-prod \
               --timeout=120s
 
             echo "✅ Deploy concluído!"
