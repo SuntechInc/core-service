@@ -1,19 +1,19 @@
-model Address {
-    id          String  @id @default(cuid()) @map("id_address")
-    street      String  @map("street")
-    number      String  @map("number")
-    complement  String? @map("complement")
-    neighborhood String @map("neighborhood")
-    city        String  @map("city")
-    state       String  @map("state")
-    country     String  @default("BR") @map("country")
-    zipCode     String  @map("zip_code")
+// model Address {
+//     id          String  @id @default(cuid()) @map("id_address")
+//     street      String  @map("street")
+//     number      String  @map("number")
+//     complement  String? @map("complement")
+//     neighborhood String @map("neighborhood")
+//     city        String  @map("city")
+//     state       String  @map("state")
+//     country     String  @default("BR") @map("country")
+//     zipCode     String  @map("zip_code")
 
-    createdAt   DateTime @default(now()) @map("created_at")
-    updatedAt   DateTime @updatedAt @map("updated_at")
+//     createdAt   DateTime @default(now()) @map("created_at")
+//     updatedAt   DateTime @updatedAt @map("updated_at")
 
-    company     Company?
-    branch      Branch?
+//     company     Company?
+//     branch      Branch?
 
-    @@map("addresses")
-} 
+//     @@map("addresses")
+// } 

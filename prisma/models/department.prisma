@@ -1,31 +1,31 @@
-model Department {
-    id         String   @id @default(cuid()) @map("id_department")
-    name       String   @map("department_name")
-    code       String?  @map("department_code") // sigla ou código interno
+// model Department {
+//     id         String   @id @default(cuid()) @map("id_department")
+//     name       String   @map("department_name")
+//     code       String?  @map("department_code") // sigla ou código interno
 
-    description String? @map("description")
+//     description String? @map("description")
 
-    responsibleName  String? @map("responsible_name")
-    responsibleEmail String? @map("responsible_email")
+//     responsibleName  String? @map("responsible_name")
+//     responsibleEmail String? @map("responsible_email")
 
-    branch    Branch   @relation(fields: [branchId], references: [id])
-    branchId  String   @map("id_branch")
+//     branch    Branch   @relation(fields: [branchId], references: [id])
+//     branchId  String   @map("id_branch")
 
-    status    DepartmentStatus   @default(ACTIVE) @map("department_status")
+//     status    DepartmentStatus   @default(ACTIVE) @map("department_status")
 
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+//     createdAt DateTime @default(now()) @map("created_at")
+//     updatedAt DateTime @updatedAt @map("updated_at")
 
-    employees Employee[]
+//     employees Employee[]
 
-    @@unique([name, branchId])
-    @@map("departments")
-}
+//     @@unique([name, branchId])
+//     @@map("departments")
+// }
 
-enum DepartmentStatus {
-    ACTIVE
-    INACTIVE
-    SUSPENDED
-    OBSOLETE
-}
+// enum DepartmentStatus {
+//     ACTIVE
+//     INACTIVE
+//     SUSPENDED
+//     OBSOLETE
+// }
 

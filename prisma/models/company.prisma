@@ -1,51 +1,51 @@
-model Company {
-    id          String  @id @default(cuid()) @map("id_company")
-    tradingName String  @unique @map("trading_name")
-    legalName   String  @map("legal_name")
-    taxId       String  @unique @map("id_tax")
-    taxCountry  String? @default("BR") @map("tax_country")
-    email       String  @unique @map("company_email")
-    phone       String @map("company_phone")
+// model Company {
+//     id          String  @id @default(cuid()) @map("id_company")
+//     tradingName String  @unique @map("trading_name")
+//     legalName   String  @map("legal_name")
+//     taxId       String  @unique @map("id_tax")
+//     taxCountry  String? @default("BR") @map("tax_country")
+//     email       String  @unique @map("company_email")
+//     phone       String @map("company_phone")
 
-    // Endereço
-    address     Address? @relation(fields: [addressId], references: [id])
-    addressId   String?  @unique @map("id_address")
+//     // Endereço
+//     address     Address? @relation(fields: [addressId], references: [id])
+//     addressId   String?  @unique @map("id_address")
 
-    industry Industry
-    segment  Segment
+//     industry Industry
+//     segment  Segment
 
-    status CompanyStatus @default(ACTIVE) @map("company_status")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+//     status CompanyStatus @default(ACTIVE) @map("company_status")
+//     createdAt DateTime @default(now()) @map("created_at")
+//     updatedAt DateTime @updatedAt @map("updated_at")
 
-    branches Branch[]
+//     branches Branch[]
 
-    @@unique([legalName, taxId])
-    @@map("companies")
-}
+//     @@unique([legalName, taxId])
+//     @@map("companies")
+// }
 
-enum CompanyStatus {
-    ACTIVE
-    INACTIVE
-    SUSPENDED
-    CLOSED
-    TRIAL
-    CANCELLED
-}
+// enum CompanyStatus {
+//     ACTIVE
+//     INACTIVE
+//     SUSPENDED
+//     CLOSED
+//     TRIAL
+//     CANCELLED
+// }
 
-enum Industry {
-    HEALTHCORE
-    AGRIBUSINESS
-    TRANSPORTATION_MOBILITY
-    TECHNOLOGY
-}
+// enum Industry {
+//     HEALTHCORE
+//     AGRIBUSINESS
+//     TRANSPORTATION_MOBILITY
+//     TECHNOLOGY
+// }
 
-enum Segment {
-    LABORATORY
-    HOSPITAL
-    MEDICAL_METALLURGY
-    ANIMAL_HEALTH
-    VEHICLE_INSPECTION
-    VEHICLE_REGISTRATION
-    DRIVING_SCHOOL
-}
+// enum Segment {
+//     LABORATORY
+//     HOSPITAL
+//     MEDICAL_METALLURGY
+//     ANIMAL_HEALTH
+//     VEHICLE_INSPECTION
+//     VEHICLE_REGISTRATION
+//     DRIVING_SCHOOL
+// }

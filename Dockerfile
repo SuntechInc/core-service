@@ -13,22 +13,7 @@
     
     # copia apenas o schema e gera o client
     COPY prisma/schema.prisma ./prisma/
-    COPY prisma/models ./prisma/models/
-    RUN cat ./prisma/schema.prisma > ./prisma/schema.prisma.tmp && \
-        echo "" >> ./prisma/schema.prisma.tmp && \
-        cat ./prisma/models/address.prisma >> ./prisma/schema.prisma.tmp && \
-        echo "" >> ./prisma/schema.prisma.tmp && \
-        cat ./prisma/models/company.prisma >> ./prisma/schema.prisma.tmp && \
-        echo "" >> ./prisma/schema.prisma.tmp && \
-        cat ./prisma/models/branch.prisma >> ./prisma/schema.prisma.tmp && \
-        echo "" >> ./prisma/schema.prisma.tmp && \
-        cat ./prisma/models/department.prisma >> ./prisma/schema.prisma.tmp && \
-        echo "" >> ./prisma/schema.prisma.tmp && \
-        cat ./prisma/models/job.prisma >> ./prisma/schema.prisma.tmp && \
-        echo "" >> ./prisma/schema.prisma.tmp && \
-        cat ./prisma/models/employee.prisma >> ./prisma/schema.prisma.tmp && \
-        mv ./prisma/schema.prisma.tmp ./prisma/schema.prisma && \
-        npx prisma generate --schema=./prisma/schema.prisma
+    RUN npx prisma generate
     
     # ---- STAGE 2: Build da aplicação ----
     FROM deps AS builder
