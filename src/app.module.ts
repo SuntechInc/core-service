@@ -5,6 +5,7 @@ import { CompanyModule } from './modules/company/company.module';
 import { BranchModule } from './modules/branch/branch.module';
 import { JobModule } from './modules/job/job.module';
 import { EmployeeModule } from './modules/employee/employee.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { EmployeeModule } from './modules/employee/employee.module';
     JobModule,
     EmployeeModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 
 })
