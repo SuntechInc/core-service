@@ -263,3 +263,13 @@ model JobTitleLevel {
     @@unique([jobTitleVersionId, label])
     @@map("job_title_levels")
 }
+
+
+model Teste {
+  id String @id @default(cuid())
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("testes")
+}
