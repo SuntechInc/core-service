@@ -8,6 +8,7 @@ import { FindCompanyByTaxIdUseCase } from './application/use-cases/find-company-
 import { SoftDeleteCompanyUseCase } from './application/use-cases/soft-delete-company/soft-delete-company.use-case';
 // import { FindCompanyByIdUseCase } from './application/use-cases/find-company-by-id.use-case';
 import { CompanyController } from './infrastructure/driver/http/company.controller';
+import { SeedService } from '../../seed/seed.service';
 
 @Module({
   imports: [PrismaModule],
@@ -23,6 +24,7 @@ import { CompanyController } from './infrastructure/driver/http/company.controll
     FindCompanyByTaxIdUseCase,
     SoftDeleteCompanyUseCase,
     // FindCompanyByIdUseCase,
+    SeedService,
   ],
 })
 export class CompanyModule {}

@@ -6,7 +6,6 @@ import { BranchModule } from './modules/branch/branch.module';
 import { JobModule } from './modules/job/job.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { HealthController } from './health/health.controller';
-import { SeedService } from './seed/seed.service';
 
 @Module({
   imports: [
@@ -20,6 +19,6 @@ import { SeedService } from './seed/seed.service';
     EmployeeModule,
   ],
   controllers: [HealthController],
-  providers: [SeedService],
+  providers: [],
 })
 export class AppModule {} 
