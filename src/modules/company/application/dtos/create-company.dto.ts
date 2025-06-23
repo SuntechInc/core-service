@@ -39,4 +39,7 @@ export class CreateCompanyDto {
   @IsUUID()
   @IsOptional()
   addressId?: string;
+
+  @IsOptional()
+  isBaseCompany?: boolean;
 }

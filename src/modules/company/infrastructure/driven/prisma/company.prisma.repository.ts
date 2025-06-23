@@ -23,6 +23,7 @@ export class PrismaCompanyRepository extends ICompanyRepository {
       industry: raw.industry as any,
       segment: raw.segment as any,
       status: raw.status as any,
+      isBaseCompany: raw.isBaseCompany ?? false,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     }, new UniqueEntityID(raw.id));
@@ -42,6 +43,7 @@ export class PrismaCompanyRepository extends ICompanyRepository {
         industry: entity.industry,
         segment: entity.segment,
         status: entity.status,
+        isBaseCompany: entity.isBaseCompany,
       },
     });
     return this.toDomain(raw);
@@ -72,6 +74,7 @@ export class PrismaCompanyRepository extends ICompanyRepository {
         industry: entity.industry,
         segment: entity.segment,
         status: entity.status,
+        isBaseCompany: entity.isBaseCompany,
       },
     });
     return this.toDomain(raw);
@@ -86,5 +89,10 @@ export class PrismaCompanyRepository extends ICompanyRepository {
   async findAll(): Promise<Company[]> {
     const companies = await this.prisma.company.findMany();
     return companies.map(company => this.toDomain(company));
+  }
+
+  async findBaseCompany(): Promise<Company | null> {
+    const raw = await this.prisma.company.findFirst({ where: { isBaseCompany: true } });
+    return raw ? this.toDomain(raw) : null;
   }
 } 

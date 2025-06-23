@@ -5,6 +5,7 @@ import { CreateCompanyDto } from '@/modules/company/application/dtos/create-comp
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
 import { UniqueEntityID } from '@/shared/core/unique-entity-id';
+import { CompanyStatus } from '@/modules/company/domain/entities/company-status.entity';
 
 
 @Injectable()
@@ -22,8 +23,9 @@ export class CreateCompanyUseCase {
         phone: dto.phone,
         industry: dto.industry,
         segment: dto.segment,
-        status: dto.status,
+        status: CompanyStatus.ACTIVE,
         addressId: dto.addressId,
+        isBaseCompany: dto.isBaseCompany ?? false,
         createdAt: new Date(),
         updatedAt: new Date(),
       }, new UniqueEntityID());

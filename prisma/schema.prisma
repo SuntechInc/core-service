@@ -111,6 +111,7 @@ model Company {
     segment  Segment
 
     status CompanyStatus @default(ACTIVE) @map("company_status")
+    isBaseCompany Boolean @default(false) @map("is_base_company")
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
 

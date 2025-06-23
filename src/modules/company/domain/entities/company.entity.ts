@@ -15,6 +15,7 @@ interface CompanyProps {
   segment: Segment;
   status: CompanyStatus;
   addressId?: string;
+  isBaseCompany?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -74,6 +75,10 @@ export class Company extends Entity<CompanyProps> {
 
   get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+
+  get isBaseCompany(): boolean {
+    return this.props.isBaseCompany ?? false;
   }
 
   // -------- Domain logic --------
