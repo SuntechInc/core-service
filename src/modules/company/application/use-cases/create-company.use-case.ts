@@ -5,7 +5,7 @@ import { CreateCompanyDto } from '@/modules/company/application/dtos/create-comp
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
 import { UniqueEntityID } from '@/shared/core/unique-entity-id';
-import { CompanyStatus } from '@/modules/company/domain/entities/company-status.entity';
+import { CompanyStatus } from '@/modules/company/domain/enums/company-status.enum';
 
 
 @Injectable()
