@@ -15,6 +15,7 @@ import { CreateCompanyDto } from '@/modules/company/application/dtos/create-comp
 import { CreateCompanyUseCase } from '@/modules/company/application/use-cases/create-company.use-case';
 import { ListCompaniesUseCase } from '@/modules/company/application/use-cases/list-companies/list-companies.use-case';
 import { FindCompanyByTaxIdUseCase } from '@/modules/company/application/use-cases/find-company-by-tax-id/find-company-by-tax-id.use-case';
+import { FindCompaniesByTradingNameUseCase } from '@/modules/company/application/use-cases/find-companies-by-trading-name/find-companies-by-trading-name.use-case';
 import { SoftDeleteCompanyUseCase } from '@/modules/company/application/use-cases/soft-delete-company/soft-delete-company.use-case';
 import { CompanyMapper } from '@/modules/company/application/mappers/company.mapper';
 import { ListCompaniesRequestDto } from '@/modules/company/application/dtos/list-companies/list-companies.request.dto';
@@ -27,6 +28,7 @@ export class CompanyController {
     private readonly createUC: CreateCompanyUseCase,
     private readonly listUC: ListCompaniesUseCase,
     private readonly findTaxIdUC: FindCompanyByTaxIdUseCase,
+    private readonly findByNameUC: FindCompaniesByTradingNameUseCase,
     private readonly softDeleteUC: SoftDeleteCompanyUseCase,
     // private readonly findUC: FindCompanyByIdUseCase,
   ) {}
@@ -85,6 +87,17 @@ export class CompanyController {
       response: response
         .status(HttpStatus.OK)
         .json(CompanyMapper.toResponseDto(result.getValue()))
+    };
+  }
+
+  @Get('search/name/:tradingName')
+  async findByTradingName(@Param('tradingName') tradingName: string, @Res() response: Response) {
+    const companies = await this.findByNameUC.execute(tradingName);
+    
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(companies.map(company => CompanyMapper.toResponseDto(company)))
     };
   }
 

@@ -62,6 +62,26 @@ export class PrismaCompanyRepository extends ICompanyRepository {
     return raw ? this.toDomain(raw) : null;
   }
 
+  async findByEmail(email: string): Promise<Company | null> {
+    const raw = await this.prisma.company.findUnique({
+      where: { email },
+    });
+    return raw ? this.toDomain(raw) : null;
+  }
+
+  async findByTradingName(tradingName: string): Promise<Company[]> {
+    const companies = await this.prisma.company.findMany({
+      where: {
+        tradingName: {
+          contains: tradingName,
+          mode: 'insensitive', // Case insensitive search
+        },
+      },
+      orderBy: { tradingName: 'asc' },
+    });
+    return companies.map(company => this.toDomain(company));
+  }
+
   async update(entity: Company): Promise<Company> {
     const raw = await this.prisma.company.update({
       where: { id: entity.id },
