@@ -17,6 +17,8 @@ import { ListCompaniesUseCase } from '@/modules/company/application/use-cases/li
 import { FindCompanyByTaxIdUseCase } from '@/modules/company/application/use-cases/find-company-by-tax-id/find-company-by-tax-id.use-case';
 import { SoftDeleteCompanyUseCase } from '@/modules/company/application/use-cases/soft-delete-company/soft-delete-company.use-case';
 import { CompanyMapper } from '@/modules/company/application/mappers/company.mapper';
+import { ListCompaniesRequestDto } from '@/modules/company/application/dtos/list-companies/list-companies.request.dto';
+import { ListCompaniesResponseDto } from '@/modules/company/application/dtos/list-companies/list-companies.response.dto';
 // import { FindCompanyByIdUseCase } from '@/modules/company/application/use-cases/find-company-by-id.use-case';
 
 @Controller('companies')
@@ -50,13 +52,20 @@ export class CompanyController {
   }
 
   @Get()
-  async findAll(@Res() response: Response) {
-    const companies = await this.listUC.execute();
+  async findAll(@Query() query: ListCompaniesRequestDto, @Res() response: Response) {
+    const result = await this.listUC.executePaginated(query);
+    
+    const responseDto = new ListCompaniesResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total
+    );
     
     return {
       response: response
         .status(HttpStatus.OK)
-        .json(companies.map(company => CompanyMapper.toResponseDto(company)))
+        .json(responseDto)
     };
   }
 
@@ -90,15 +99,16 @@ export class CompanyController {
   //   return res.json(CompanyMapper.toResponseDto(result.unwrap()));
   // }
 
-  // Exemplo de listagem paginada
-  @Get()
-  async list(
-    @Query('skip') skip = 0,
-    @Query('take') take = 20,
-    @Res() res: Response,
-  ) {
-    // implementar ListCompaniesUseCase se/ quando precisar
-    return res.status(501).json({ message: 'Not implemented' });
+  // Endpoint alternativo para compatibilidade (mantido por enquanto)
+  @Get('all')
+  async findAllWithoutPagination(@Res() response: Response) {
+    const companies = await this.listUC.execute();
+    
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(companies.map(company => CompanyMapper.toResponseDto(company)))
+    };
   }
 
   @Delete(':id')

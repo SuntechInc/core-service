@@ -1,7 +1,6 @@
 import { Company } from "@/modules/company/domain/entities/company.entity";
 
-
-export class ListCompaniesResponseDto {
+export class CompanyListItemDto {
   id: string;
   tradingName: string;
   legalName: string;
@@ -28,5 +27,29 @@ export class ListCompaniesResponseDto {
     this.status = company.status;
     this.createdAt = company.createdAt;
     this.updatedAt = company.updatedAt;
+  }
+}
+
+export class ListCompaniesResponseDto {
+  data: CompanyListItemDto[];
+  pagination: {
+    page: number;
+    size: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
+
+  constructor(companies: Company[], page: number, size: number, total: number) {
+    this.data = companies.map(company => new CompanyListItemDto(company));
+    this.pagination = {
+      page,
+      size,
+      total,
+      totalPages: Math.ceil(total / size),
+      hasNext: page < Math.ceil(total / size),
+      hasPrevious: page > 1,
+    };
   }
 } 

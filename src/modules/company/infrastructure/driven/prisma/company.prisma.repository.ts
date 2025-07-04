@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/shared/infrastructure/database/prisma.service';
-import { ICompanyRepository } from '@/modules/company/application/ports/company.repository';
+import { ICompanyRepository, PaginationOptions, PaginatedResult } from '@/modules/company/application/ports/company.repository';
 import { Company } from '@/modules/company/domain/entities/company.entity';
 import { Prisma, Company as PrismaCompany } from '@prisma/client';
 import { UniqueEntityID } from '@/shared/core/unique-entity-id';
+import { PAGINATION_CONSTANTS } from '@/modules/company/application/constants/pagination.constants';
 
 @Injectable()
 export class PrismaCompanyRepository extends ICompanyRepository {
@@ -89,6 +90,37 @@ export class PrismaCompanyRepository extends ICompanyRepository {
   async findAll(): Promise<Company[]> {
     const companies = await this.prisma.company.findMany();
     return companies.map(company => this.toDomain(company));
+  }
+
+  async findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Company>> {
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take } = options;
+    
+    // Calcular skip e take baseado em page e size se não fornecidos
+    const finalSkip = skip ?? (page - 1) * size;
+    const finalTake = take ?? size;
+    
+    // Limitar o tamanho máximo da página
+    const limitedTake = Math.min(finalTake, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [companies, total] = await Promise.all([
+      this.prisma.company.findMany({
+        skip: finalSkip,
+        take: limitedTake,
+        orderBy: { createdAt: 'desc' }, // Ordenar por data de criação (mais recentes primeiro)
+      }),
+      this.prisma.company.count(),
+    ]);
+
+    return {
+      data: companies.map(company => this.toDomain(company)),
+      total,
+      page,
+      size: limitedTake,
+    };
+  }
+
+  async count(): Promise<number> {
+    return this.prisma.company.count();
   }
 
   async findBaseCompany(): Promise<Company | null> {
