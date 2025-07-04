@@ -69,14 +69,14 @@ export class CompanyController {
     };
   }
 
-  @Get('tax-id/:taxId')
+  @Get('search/:taxId')
   async findByTaxId(@Param('taxId') taxId: string, @Res() response: Response) {
     const result = await this.findTaxIdUC.execute(taxId);
     
     if (result.isFailure) {
       return {
         response: response
-          .status((result.errorValue() as any).statusCode || 400)
+          .status((result.errorValue() as any).statusCode || HttpStatus.BAD_REQUEST)
           .json({ message: result.errorValue().message })
       };
     }
