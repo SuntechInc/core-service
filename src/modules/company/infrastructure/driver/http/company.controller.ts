@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
 } from '@nestjs/common';
@@ -16,10 +17,12 @@ import { CreateCompanyUseCase } from '@/modules/company/application/use-cases/cr
 import { ListCompaniesUseCase } from '@/modules/company/application/use-cases/list-companies/list-companies.use-case';
 import { FindCompanyByTaxIdUseCase } from '@/modules/company/application/use-cases/find-company-by-tax-id/find-company-by-tax-id.use-case';
 import { FindCompaniesByTradingNameUseCase } from '@/modules/company/application/use-cases/find-companies-by-trading-name/find-companies-by-trading-name.use-case';
+import { UpdateCompanyUseCase } from '@/modules/company/application/use-cases/update-company/update-company.use-case';
 import { SoftDeleteCompanyUseCase } from '@/modules/company/application/use-cases/soft-delete-company/soft-delete-company.use-case';
 import { CompanyMapper } from '@/modules/company/application/mappers/company.mapper';
 import { ListCompaniesRequestDto } from '@/modules/company/application/dtos/list-companies/list-companies.request.dto';
 import { ListCompaniesResponseDto } from '@/modules/company/application/dtos/list-companies/list-companies.response.dto';
+import { UpdateCompanyDto } from '@/modules/company/application/dtos/update-company.dto';
 // import { FindCompanyByIdUseCase } from '@/modules/company/application/use-cases/find-company-by-id.use-case';
 
 @Controller('companies')
@@ -29,6 +32,7 @@ export class CompanyController {
     private readonly listUC: ListCompaniesUseCase,
     private readonly findTaxIdUC: FindCompanyByTaxIdUseCase,
     private readonly findByNameUC: FindCompaniesByTradingNameUseCase,
+    private readonly updateUC: UpdateCompanyUseCase,
     private readonly softDeleteUC: SoftDeleteCompanyUseCase,
     // private readonly findUC: FindCompanyByIdUseCase,
   ) {}
@@ -98,6 +102,26 @@ export class CompanyController {
       response: response
         .status(HttpStatus.OK)
         .json(companies.map(company => CompanyMapper.toResponseDto(company)))
+    };
+  }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  async update(@Param('id') id: string, @Body() body: UpdateCompanyDto, @Res() response: Response) {
+    const result = await this.updateUC.execute(id, body);
+    
+    if (result.isFailure) {
+      return {
+        response: response
+          .status((result.errorValue() as any).statusCode || HttpStatus.BAD_REQUEST)
+          .json({ message: result.errorValue().message })
+      };
+    }
+
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(CompanyMapper.toResponseDto(result.getValue()))
     };
   }
 
