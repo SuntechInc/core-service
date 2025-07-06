@@ -1,5 +1,19 @@
 import { Branch } from '../../domain/entities/branch.entity';
 
+export interface PaginationOptions {
+  page?: number;
+  size?: number;
+  skip?: number;
+  take?: number;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  size: number;
+}
+
 export abstract class IBranchRepository {
   abstract create(branch: Branch): Promise<Branch>;
   abstract findById(id: string): Promise<Branch | null>;
@@ -7,5 +21,7 @@ export abstract class IBranchRepository {
   abstract update(branch: Branch): Promise<Branch>;
   abstract delete(id: string): Promise<void>;
   abstract findAll(): Promise<Branch[]>;
+  abstract findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>>;
   abstract findByName(name: string): Promise<Branch[]>;
+  abstract count(): Promise<number>;
 } 

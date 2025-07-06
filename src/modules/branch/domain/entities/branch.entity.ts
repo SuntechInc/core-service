@@ -9,7 +9,7 @@ interface BranchProps {
   email?: string;
   phone?: string;
   responsible?: string;
-  isHeadquarter: boolean;
+  isHeadquarter?: boolean;
   status: BranchStatus;
   companyId: string;
   addressId?: string;
@@ -51,7 +51,7 @@ export class Branch extends Entity<BranchProps> {
   }
 
   get isHeadquarter(): boolean {
-    return this.props.isHeadquarter;
+    return this.props.isHeadquarter ?? false;
   }
 
   get status(): BranchStatus {

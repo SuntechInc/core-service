@@ -26,7 +26,8 @@ export class CreateBranchDto {
   responsible?: string;
 
   @IsBoolean()
-  isHeadquarter: boolean;
+  @IsOptional()
+  isHeadquarter?: boolean;
 
   @IsEnum(BranchStatus)
   status: BranchStatus;

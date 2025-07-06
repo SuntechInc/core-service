@@ -19,7 +19,7 @@ export class CreateBranchUseCase {
         email: dto.email,
         phone: dto.phone,
         responsible: dto.responsible,
-        isHeadquarter: dto.isHeadquarter,
+        isHeadquarter: dto.isHeadquarter ?? false,
         status: dto.status,
         companyId: dto.companyId,
         addressId: dto.addressId,

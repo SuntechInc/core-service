@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './shared/infrastructure/database/prisma.module';
 import { CompanyModule } from './modules/company/company.module';
 import { BranchModule } from './modules/branch/branch.module';
+import { DepartmentModule } from './modules/department/department.module';
 import { JobModule } from './modules/job/job.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { HealthController } from './health/health.controller';
@@ -15,6 +16,7 @@ import { HealthController } from './health/health.controller';
     PrismaModule,
     CompanyModule,
     BranchModule,
+    DepartmentModule,
     JobModule,
     EmployeeModule,
   ],

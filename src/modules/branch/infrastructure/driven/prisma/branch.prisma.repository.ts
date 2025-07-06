@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/shared/infrastructure/database/prisma.service';
-import { IBranchRepository } from '@/modules/branch/application/ports/branch.repository';
+import { IBranchRepository, PaginationOptions, PaginatedResult } from '@/modules/branch/application/ports/branch.repository';
 import { Branch } from '@/modules/branch/domain/entities/branch.entity';
 import { Prisma, Branch as PrismaBranch } from '@prisma/client';
 import { UniqueEntityID } from '@/shared/core/unique-entity-id';
+import { PAGINATION_CONSTANTS } from '@/modules/branch/application/constants/pagination.constants';
 
 @Injectable()
 export class PrismaBranchRepository extends IBranchRepository {
@@ -98,10 +99,42 @@ export class PrismaBranchRepository extends IBranchRepository {
       where: {
         name: {
           contains: name,
-          mode: 'insensitive',
+          mode: 'insensitive', // Case insensitive search
         },
       },
+      orderBy: { name: 'asc' },
     });
     return branches.map(branch => this.toDomain(branch));
+  }
+
+  async findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>> {
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take } = options;
+    
+    // Calcular skip e take baseado em page e size se não fornecidos
+    const finalSkip = skip ?? (page - 1) * size;
+    const finalTake = take ?? size;
+    
+    // Limitar o tamanho máximo da página
+    const limitedTake = Math.min(finalTake, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [branches, total] = await Promise.all([
+      this.prisma.branch.findMany({
+        skip: finalSkip,
+        take: limitedTake,
+        orderBy: { createdAt: 'desc' }, // Ordenar por data de criação (mais recentes primeiro)
+      }),
+      this.prisma.branch.count(),
+    ]);
+
+    return {
+      data: branches.map(branch => this.toDomain(branch)),
+      total,
+      page,
+      size: limitedTake,
+    };
+  }
+
+  async count(): Promise<number> {
+    return this.prisma.branch.count();
   }
 } 

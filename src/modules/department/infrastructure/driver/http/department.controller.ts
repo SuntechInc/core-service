@@ -13,17 +13,19 @@ import {
 import { Response } from 'express';
 import { CreateDepartmentDto } from '@/modules/department/application/dtos/create-department.dto';
 import { CreateDepartmentUseCase } from '@/modules/department/application/use-cases/create-department/create-department.use-case';
+import { ListDepartmentsUseCase } from '@/modules/department/application/use-cases/list-departments/list-departments.use-case';
 import { FindDepartmentByNameUseCase } from '@/modules/department/application/use-cases/find-department-by-name/find-department-by-name.use-case';
-import { FindAllDepartmentsUseCase } from '@/modules/department/application/use-cases/find-all-departments/find-all-departments.use-case';
 import { SoftDeleteDepartmentUseCase } from '@/modules/department/application/use-cases/soft-delete-department/soft-delete-department.use-case';
 import { DepartmentMapper } from '@/modules/department/application/mappers/department.mapper';
+import { ListDepartmentsRequestDto } from '@/modules/department/application/dtos/list-departments/list-departments.request.dto';
+import { ListDepartmentsResponseDto } from '@/modules/department/application/dtos/list-departments/list-departments.response.dto';
 
 @Controller('departments')
 export class DepartmentController {
   constructor(
     private readonly createUC: CreateDepartmentUseCase,
     private readonly findByNameUC: FindDepartmentByNameUseCase,
-    private readonly findAllUC: FindAllDepartmentsUseCase,
+    private readonly findAllUC: ListDepartmentsUseCase,
     private readonly softDeleteUC: SoftDeleteDepartmentUseCase,
   ) {}
 
@@ -47,43 +49,45 @@ export class DepartmentController {
     };
   }
 
-  @Get('search')
+  @Get('search/name/:name')
   @HttpCode(HttpStatus.OK)
-  async findByName(@Query('name') name: string, @Res() response: Response) {
-    const result = await this.findByNameUC.execute(name);
+  async findByName(@Param('name') name: string, @Res() response: Response) {
+    const departments = await this.findByNameUC.execute(name);
     
-    if (result.isFailure) {
-      return {
-        response: response
-          .status((result.errorValue() as any).statusCode || 400)
-          .json({ message: result.errorValue().message })
-      };
-    }
-
     return {
       response: response
         .status(HttpStatus.OK)
-        .json(result.getValue().map(department => DepartmentMapper.toResponseDto(department)))
+        .json(departments.map(department => DepartmentMapper.toResponseDto(department)))
     };
   }
 
   @Get()
-  @HttpCode(HttpStatus.OK)
-  async findAll(@Res() response: Response) {
-    const result = await this.findAllUC.execute();
+  async findAll(@Query() query: ListDepartmentsRequestDto, @Res() response: Response) {
+    const result = await this.findAllUC.executePaginated(query);
     
-    if (result.isFailure) {
-      return {
-        response: response
-          .status((result.errorValue() as any).statusCode || 400)
-          .json({ message: result.errorValue().message })
-      };
-    }
-
+    const responseDto = new ListDepartmentsResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total
+    );
+    
     return {
       response: response
         .status(HttpStatus.OK)
-        .json(result.getValue().map(department => DepartmentMapper.toResponseDto(department)))
+        .json(responseDto)
+    };
+  }
+
+  // Endpoint alternativo para compatibilidade (mantido por enquanto)
+  @Get('all')
+  async findAllWithoutPagination(@Res() response: Response) {
+    const departments = await this.findAllUC.execute();
+    
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(departments.map(department => DepartmentMapper.toResponseDto(department)))
     };
   }
 

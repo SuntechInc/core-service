@@ -13,17 +13,19 @@ import {
 import { Response } from 'express';
 import { CreateBranchDto } from '@/modules/branch/application/dtos/create-branch.dto';
 import { CreateBranchUseCase } from '@/modules/branch/application/use-cases/create-branch/create-branch.use-case';
+import { ListBranchesUseCase } from '@/modules/branch/application/use-cases/list-branches/list-branches.use-case';
 import { FindBranchByNameUseCase } from '@/modules/branch/application/use-cases/find-branch-by-name/find-branch-by-name.use-case';
-import { FindAllBranchesUseCase } from '@/modules/branch/application/use-cases/find-all-branches/find-all-branches.use-case';
 import { SoftDeleteBranchUseCase } from '@/modules/branch/application/use-cases/soft-delete-branch/soft-delete-branch.use-case';
 import { BranchMapper } from '@/modules/branch/application/mappers/branch.mapper';
+import { ListBranchesRequestDto } from '@/modules/branch/application/dtos/list-branches/list-branches.request.dto';
+import { ListBranchesResponseDto } from '@/modules/branch/application/dtos/list-branches/list-branches.response.dto';
 
 @Controller('branches')
 export class BranchController {
   constructor(
     private readonly createUC: CreateBranchUseCase,
     private readonly findByNameUC: FindBranchByNameUseCase,
-    private readonly findAllUC: FindAllBranchesUseCase,
+    private readonly findAllUC: ListBranchesUseCase,
     private readonly softDeleteUC: SoftDeleteBranchUseCase,
   ) {}
 
@@ -47,43 +49,45 @@ export class BranchController {
     };
   }
 
-  @Get('search')
+  @Get('search/name/:name')
   @HttpCode(HttpStatus.OK)
-  async findByName(@Query('name') name: string, @Res() response: Response) {
-    const result = await this.findByNameUC.execute(name);
+  async findByName(@Param('name') name: string, @Res() response: Response) {
+    const branches = await this.findByNameUC.execute(name);
     
-    if (result.isFailure) {
-      return {
-        response: response
-          .status((result.errorValue() as any).statusCode || 400)
-          .json({ message: result.errorValue().message })
-      };
-    }
-
     return {
       response: response
         .status(HttpStatus.OK)
-        .json(result.getValue().map(branch => BranchMapper.toResponseDto(branch)))
+        .json(branches.map(branch => BranchMapper.toResponseDto(branch)))
     };
   }
 
   @Get()
-  @HttpCode(HttpStatus.OK)
-  async findAll(@Res() response: Response) {
-    const result = await this.findAllUC.execute();
+  async findAll(@Query() query: ListBranchesRequestDto, @Res() response: Response) {
+    const result = await this.findAllUC.executePaginated(query);
     
-    if (result.isFailure) {
-      return {
-        response: response
-          .status((result.errorValue() as any).statusCode || 400)
-          .json({ message: result.errorValue().message })
-      };
-    }
-
+    const responseDto = new ListBranchesResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total
+    );
+    
     return {
       response: response
         .status(HttpStatus.OK)
-        .json(result.getValue().map(branch => BranchMapper.toResponseDto(branch)))
+        .json(responseDto)
+    };
+  }
+
+  // Endpoint alternativo para compatibilidade (mantido por enquanto)
+  @Get('all')
+  async findAllWithoutPagination(@Res() response: Response) {
+    const branches = await this.findAllUC.execute();
+    
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(branches.map(branch => BranchMapper.toResponseDto(branch)))
     };
   }
 
