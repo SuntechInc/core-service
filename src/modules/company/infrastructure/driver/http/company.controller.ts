@@ -40,21 +40,36 @@ export class CompanyController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() body: CreateCompanyDto, @Res() response: Response) {
-    const result = await this.createUC.execute(body);
-    
-    if (result.isFailure) {
+    console.log('Recebido body:', body);
+    try {
+      const result = await this.createUC.execute(body);
+      console.log('Resultado do use case:', result);
+
+      if (result.isFailure) {
+        console.log('Erro no use case:', result.errorValue());
+        return {
+          response: response
+            .status((result.errorValue() as any).statusCode || 400)
+            .json({ message: result.errorValue().message })
+        };
+      }
+
+      const dto = CompanyMapper.toResponseDto(result.getValue());
+      console.log('DTO de resposta:', dto);
+
       return {
         response: response
-          .status((result.errorValue() as any).statusCode || 400)
-          .json({ message: result.errorValue().message })
+          .status(HttpStatus.CREATED)
+          .json(dto)
+      };
+    } catch (err) {
+      console.error('Erro inesperado:', err);
+      return {
+        response: response
+          .status(500)
+          .json({ message: 'Erro inesperado', error: err.message })
       };
     }
-
-    return {
-      response: response
-        .status(HttpStatus.CREATED)
-        .json(CompanyMapper.toResponseDto(result.getValue()))
-    };
   }
 
   @Get()

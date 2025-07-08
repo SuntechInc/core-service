@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, MinLength, Matches } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, MinLength, Matches, IsNotEmpty } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { CompanyStatus } from '../../domain/enums/company-status.enum';
 import { Industry } from '../../domain/enums/industry.enum';
@@ -12,15 +12,15 @@ export class CreateCompanyDto {
 
   @IsString()
   @MinLength(3, { message: 'Legal name must be at least 3 characters long' })
-  @IsOptional()
+  @IsNotEmpty({ message: 'Legal name is required' })
   @Transform(({ value }) => value?.trim())
-  legalName?: string;
+  legalName: string;
 
   @IsString()
   @MinLength(11, { message: 'Tax ID must be at least 11 characters long' })
-  @IsOptional()
+  @IsNotEmpty({ message: 'Tax ID is required' })
   @Transform(({ value }) => value?.replace(/[^\d]/g, '')) // Remove caracteres não numéricos
-  taxId?: string;
+  taxId: string;
 
   @IsString()
   @IsOptional()
@@ -28,9 +28,9 @@ export class CreateCompanyDto {
   taxCountry?: string = 'BR';
 
   @IsEmail({}, { message: 'Invalid email format' })
-  @IsOptional()
+  @IsNotEmpty({ message: 'Email is required' })
   @Transform(({ value }) => value?.toLowerCase().trim())
-  email?: string;
+  email: string;
 
   @IsString()
   @MinLength(10, { message: 'Phone number must be at least 10 characters long' })

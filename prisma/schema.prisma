@@ -102,7 +102,7 @@ model Company {
     taxId       String  @unique @map("id_tax")
     taxCountry  String? @default("BR") @map("tax_country")
     email       String  @unique @map("company_email")
-    phone       String @map("company_phone")
+    phone       String? @map("company_phone")
 
     address     Address? @relation(fields: [addressId], references: [id])
     addressId   String?  @unique @map("id_address")
