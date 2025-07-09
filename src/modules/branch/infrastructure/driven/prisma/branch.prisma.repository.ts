@@ -90,18 +90,21 @@ export class PrismaBranchRepository extends IBranchRepository {
     });
   }
 
-  async findAll(): Promise<Branch[]> {
-    const branches = await this.prisma.branch.findMany();
+  async findAll(companyId: string): Promise<Branch[]> {
+    const branches = await this.prisma.branch.findMany({
+      where: { companyId },
+    });
     return branches.map(branch => this.toDomain(branch));
   }
 
-  async findByName(name: string): Promise<Branch[]> {
+  async findByName(name: string, companyId: string): Promise<Branch[]> {
     const branches = await this.prisma.branch.findMany({
       where: {
         name: {
           contains: name,
-          mode: 'insensitive', // Case insensitive search
+          mode: 'insensitive',
         },
+        companyId,
       },
       orderBy: { name: 'asc' },
     });
@@ -109,22 +112,23 @@ export class PrismaBranchRepository extends IBranchRepository {
   }
 
   async findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>> {
-    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take } = options;
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take, companyId } = options;
     
-    // Calcular skip e take baseado em page e size se não fornecidos
     const finalSkip = skip ?? (page - 1) * size;
     const finalTake = take ?? size;
     
-    // Limitar o tamanho máximo da página
     const limitedTake = Math.min(finalTake, PAGINATION_CONSTANTS.MAX_SIZE);
     
     const [branches, total] = await Promise.all([
       this.prisma.branch.findMany({
+        where: { companyId },
         skip: finalSkip,
         take: limitedTake,
-        orderBy: { createdAt: 'desc' }, // Ordenar por data de criação (mais recentes primeiro)
+        orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.branch.count(),
+      this.prisma.branch.count({
+        where: { companyId },
+      }),
     ]);
 
     return {
@@ -135,17 +139,21 @@ export class PrismaBranchRepository extends IBranchRepository {
     };
   }
 
-  async count(): Promise<number> {
-    return this.prisma.branch.count();
+  async count(companyId: string): Promise<number> {
+    return this.prisma.branch.count({
+      where: { companyId },
+    });
   }
 
   async findWithFilters(options: BranchFilterOptions): Promise<BranchFilterResult<Branch>> {
-    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include } = options;
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, companyId } = options;
     
-    // Construir where clause usando BranchFilters
-    const where = BranchFilters.buildWhere(filter);
+    const baseWhere = BranchFilters.buildWhere(filter);
+    const where = {
+      ...baseWhere,
+      companyId,
+    };
     
-    // Limitar o tamanho máximo
     const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
     
     const [branches, total] = await Promise.all([
@@ -159,7 +167,6 @@ export class PrismaBranchRepository extends IBranchRepository {
       this.prisma.branch.count({ where }),
     ]);
 
-    // Calcular informações de paginação para a resposta
     const page = Math.floor(skip / finalTake) + 1;
     const totalPages = Math.ceil(total / finalTake);
 

@@ -8,19 +8,19 @@ import { PAGINATION_CONSTANTS } from '../../constants/pagination.constants';
 export class ListBranchesUseCase {
   constructor(private readonly branchRepository: IBranchRepository) {}
 
-  async execute(): Promise<Branch[]> {
-    return this.branchRepository.findAll();
+  async execute(companyId: string): Promise<Branch[]> {
+    return this.branchRepository.findAll(companyId);
   }
 
   async executePaginated(options: ListBranchesRequestDto): Promise<PaginatedResult<Branch>> {
-    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take } = options;
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take, companyId } = options;
     
-    // Normalizar parâmetros
     const normalizedOptions: PaginationOptions = {
       page: Math.max(PAGINATION_CONSTANTS.MIN_PAGE, page),
       size: Math.min(Math.max(PAGINATION_CONSTANTS.MIN_SIZE, size), PAGINATION_CONSTANTS.MAX_SIZE),
       skip,
       take,
+      companyId,
     };
 
     return this.branchRepository.findAllPaginated(normalizedOptions);

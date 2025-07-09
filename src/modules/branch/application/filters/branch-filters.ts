@@ -9,6 +9,7 @@ export interface BranchFilterOptions {
   take?: number;
   orderBy?: Prisma.BranchOrderByWithRelationInput;
   include?: Prisma.BranchInclude;
+  companyId: string; 
 }
 
 export interface BranchFilterResult<T = any> {
@@ -27,19 +28,12 @@ export interface BranchFilterResult<T = any> {
  */
 export class BranchFilters {
   /**
-   * Converte um filtro de Branch em objeto Where do Prisma
+   * Converte BranchFilter para Prisma where clause
    */
-  static buildWhere(filter?: BranchFilter): Prisma.BranchWhereInput | undefined {
-    if (!filter) return undefined;
+  static buildWhere(filter?: BranchFilter): Prisma.BranchWhereInput {
+    if (!filter) return {};
+    
     return PrismaFilterBuilder.buildWhere(filter) as Prisma.BranchWhereInput;
-  }
-
-  /**
-   * Converte string JSON de filtro em objeto Where do Prisma
-   */
-  static buildWhereFromString(filterString?: string): Prisma.BranchWhereInput | undefined {
-    if (!filterString) return undefined;
-    return PrismaFilterBuilder.buildWhereFromString(filterString) as Prisma.BranchWhereInput;
   }
 
   /**
@@ -48,33 +42,6 @@ export class BranchFilters {
   static byName(name: string): BranchFilter {
     return {
       name: { $contains: name }
-    };
-  }
-
-  /**
-   * Cria filtro para busca por status
-   */
-  static byStatus(status: string): BranchFilter {
-    return {
-      status: { $eq: status }
-    };
-  }
-
-  /**
-   * Cria filtro para busca por empresa
-   */
-  static byCompany(companyId: string): BranchFilter {
-    return {
-      companyId: { $eq: companyId }
-    };
-  }
-
-  /**
-   * Cria filtro para buscar sedes
-   */
-  static headquarters(isHeadquarter: boolean = true): BranchFilter {
-    return {
-      isHeadquarter: { $eq: isHeadquarter }
     };
   }
 
@@ -97,20 +64,38 @@ export class BranchFilters {
   }
 
   /**
-   * Cria filtro para busca por responsável
-   */
-  static byResponsible(responsible: string): BranchFilter {
-    return {
-      responsible: { $contains: responsible }
-    };
-  }
-
-  /**
    * Cria filtro para busca por sigla
    */
   static bySigla(sigla: string): BranchFilter {
     return {
       sigla: { $contains: sigla }
+    };
+  }
+
+  /**
+   * Cria filtro para buscar sedes
+   */
+  static headquarters(isHeadquarter: boolean = true): BranchFilter {
+    return {
+      isHeadquarter: { $eq: isHeadquarter }
+    };
+  }
+
+  /**
+   * Cria filtro para busca por status
+   */
+  static byStatus(status: string): BranchFilter {
+    return {
+      status: { $eq: status }
+    };
+  }
+
+  /**
+   * Cria filtro para busca por responsável
+   */
+  static byResponsible(responsible: string): BranchFilter {
+    return {
+      responsible: { $contains: responsible }
     };
   }
 
@@ -124,17 +109,12 @@ export class BranchFilters {
   }
 
   /**
-   * Cria filtro para branches ativas
+   * Cria filtro para busca por empresa
    */
-  static active(): BranchFilter {
-    return this.byStatus('ACTIVE');
-  }
-
-  /**
-   * Cria filtro para branches inativas
-   */
-  static inactive(): BranchFilter {
-    return this.byStatus('INACTIVE');
+  static byCompany(companyId: string): BranchFilter {
+    return {
+      companyId: { $eq: companyId }
+    };
   }
 
   /**
@@ -147,7 +127,7 @@ export class BranchFilters {
   }
 
   /**
-   * Cria filtro com condições OR
+   * Cria filtro OR combinando múltiplas condições
    */
   static or(...filters: BranchFilter[]): BranchFilter {
     return {

@@ -55,8 +55,12 @@ export class BranchController {
 
   @Get('search/name/:name')
   @HttpCode(HttpStatus.OK)
-  async findByName(@Param('name') name: string, @Res() response: Response) {
-    const branches = await this.findByNameUC.execute(name);
+  async findByName(
+    @Param('name') name: string, 
+    @Query('companyId') companyId: string,
+    @Res() response: Response
+  ) {
+    const branches = await this.findByNameUC.execute(name, companyId);
     
     return {
       response: response
@@ -83,18 +87,6 @@ export class BranchController {
     };
   }
 
-  // Endpoint alternativo para compatibilidade (mantido por enquanto)
-  @Get('all')
-  async findAllWithoutPagination(@Res() response: Response) {
-    const branches = await this.findAllUC.execute();
-    
-    return {
-      response: response
-        .status(HttpStatus.OK)
-        .json(branches.map(branch => BranchMapper.toResponseDto(branch)))
-    };
-  }
-
   @Get('filter')
   async filterBranches(@Query() query: FilterBranchesRequestDto, @Res() response: Response) {
     const result = await this.filterUC.execute(query);
@@ -116,7 +108,10 @@ export class BranchController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async softDelete(@Param('id') id: string, @Res() response: Response) {
+  async softDelete(
+    @Param('id') id: string,
+    @Res() response: Response
+  ) {
     const result = await this.softDeleteUC.execute(id);
     
     if (result.isFailure) {

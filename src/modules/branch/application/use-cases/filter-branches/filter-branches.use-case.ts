@@ -10,28 +10,25 @@ export class FilterBranchesUseCase {
   constructor(private readonly branchRepository: IBranchRepository) {}
 
   async execute(request: FilterBranchesRequestDto): Promise<BranchFilterResult<Branch>> {
-    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE } = request;
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, companyId } = request;
     
-    // Normalizar parâmetros de paginação
+    
     const normalizedPage = Math.max(PAGINATION_CONSTANTS.MIN_PAGE, page);
     const normalizedSize = Math.min(Math.max(PAGINATION_CONSTANTS.MIN_SIZE, size), PAGINATION_CONSTANTS.MAX_SIZE);
     
-    // Converter page/size para skip/take (padrão Prisma)
     const skip = (normalizedPage - 1) * normalizedSize;
     const take = normalizedSize;
     
-    // Obter filtro parseado
     const filter = request.getParsedFilter();
     
-    // Construir opções de filtro
     const options: BranchFilterOptions = {
       filter,
       skip,
       take,
       orderBy: { createdAt: 'desc' },
+      companyId,
     };
 
-    // Executar busca com filtros
     const result = await this.branchRepository.findWithFilters(options);
 
     return result;
