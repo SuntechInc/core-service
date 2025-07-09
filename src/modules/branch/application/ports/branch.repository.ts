@@ -1,4 +1,5 @@
 import { Branch } from '../../domain/entities/branch.entity';
+import { BranchFilterOptions, BranchFilterResult } from '../filters/branch-filters';
 
 export interface PaginationOptions {
   page?: number;
@@ -24,4 +25,5 @@ export abstract class IBranchRepository {
   abstract findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>>;
   abstract findByName(name: string): Promise<Branch[]>;
   abstract count(): Promise<number>;
+  abstract findWithFilters(options: BranchFilterOptions): Promise<BranchFilterResult<Branch>>;
 } 

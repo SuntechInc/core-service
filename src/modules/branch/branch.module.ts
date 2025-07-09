@@ -6,6 +6,7 @@ import { CreateBranchUseCase } from './application/use-cases/create-branch/creat
 import { ListBranchesUseCase } from './application/use-cases/list-branches/list-branches.use-case';
 import { FindBranchByNameUseCase } from './application/use-cases/find-branch-by-name/find-branch-by-name.use-case';
 import { SoftDeleteBranchUseCase } from './application/use-cases/soft-delete-branch/soft-delete-branch.use-case';
+import { FilterBranchesUseCase } from './application/use-cases/filter-branches/filter-branches.use-case';
 import { BranchController } from './infrastructure/driver/http/branch.controller';
 
 @Module({
@@ -21,6 +22,7 @@ import { BranchController } from './infrastructure/driver/http/branch.controller
     ListBranchesUseCase,
     FindBranchByNameUseCase,
     SoftDeleteBranchUseCase,
+    FilterBranchesUseCase,
   ],
 })
 export class BranchModule {} 

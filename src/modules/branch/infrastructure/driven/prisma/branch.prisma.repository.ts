@@ -5,6 +5,7 @@ import { Branch } from '@/modules/branch/domain/entities/branch.entity';
 import { Prisma, Branch as PrismaBranch } from '@prisma/client';
 import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 import { PAGINATION_CONSTANTS } from '@/modules/branch/application/constants/pagination.constants';
+import { BranchFilters, BranchFilterOptions, BranchFilterResult } from '@/modules/branch/application/filters/branch-filters';
 
 @Injectable()
 export class PrismaBranchRepository extends IBranchRepository {
@@ -136,5 +137,40 @@ export class PrismaBranchRepository extends IBranchRepository {
 
   async count(): Promise<number> {
     return this.prisma.branch.count();
+  }
+
+  async findWithFilters(options: BranchFilterOptions): Promise<BranchFilterResult<Branch>> {
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include } = options;
+    
+    // Construir where clause usando BranchFilters
+    const where = BranchFilters.buildWhere(filter);
+    
+    // Limitar o tamanho máximo
+    const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [branches, total] = await Promise.all([
+      this.prisma.branch.findMany({
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
+      }),
+      this.prisma.branch.count({ where }),
+    ]);
+
+    // Calcular informações de paginação para a resposta
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
+
+    return {
+      data: branches.map(branch => this.toDomain(branch)),
+      total,
+      page,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
   }
 } 
