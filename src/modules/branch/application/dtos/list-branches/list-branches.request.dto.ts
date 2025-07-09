@@ -1,8 +1,12 @@
-import { IsOptional, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsUUID, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PAGINATION_CONSTANTS } from '../../constants/pagination.constants';
 
 export class ListBranchesRequestDto {
+  @IsUUID()
+  @IsNotEmpty({ message: 'Company ID is required' })
+  companyId: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'Page must be an integer' })

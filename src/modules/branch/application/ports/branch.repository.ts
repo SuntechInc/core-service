@@ -6,6 +6,7 @@ export interface PaginationOptions {
   size?: number;
   skip?: number;
   take?: number;
+  companyId: string;
 }
 
 export interface PaginatedResult<T> {
@@ -19,11 +20,11 @@ export abstract class IBranchRepository {
   abstract create(branch: Branch): Promise<Branch>;
   abstract findById(id: string): Promise<Branch | null>;
   abstract findByCompanyId(companyId: string): Promise<Branch[]>;
-  abstract update(branch: Branch): Promise<Branch>;
-  abstract delete(id: string): Promise<void>;
-  abstract findAll(): Promise<Branch[]>;
+  abstract update(entity: Branch): Promise<Branch>;
+  abstract delete(id: string): Promise<void>; 
+  abstract findAll(companyId: string): Promise<Branch[]>;
   abstract findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>>;
-  abstract findByName(name: string): Promise<Branch[]>;
-  abstract count(): Promise<number>;
+  abstract findByName(name: string, companyId: string): Promise<Branch[]>;
+  abstract count(companyId: string): Promise<number>;
   abstract findWithFilters(options: BranchFilterOptions): Promise<BranchFilterResult<Branch>>;
 } 
