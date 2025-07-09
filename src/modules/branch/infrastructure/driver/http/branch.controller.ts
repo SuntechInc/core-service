@@ -16,9 +16,12 @@ import { CreateBranchUseCase } from '@/modules/branch/application/use-cases/crea
 import { ListBranchesUseCase } from '@/modules/branch/application/use-cases/list-branches/list-branches.use-case';
 import { FindBranchByNameUseCase } from '@/modules/branch/application/use-cases/find-branch-by-name/find-branch-by-name.use-case';
 import { SoftDeleteBranchUseCase } from '@/modules/branch/application/use-cases/soft-delete-branch/soft-delete-branch.use-case';
+import { FilterBranchesUseCase } from '@/modules/branch/application/use-cases/filter-branches/filter-branches.use-case';
 import { BranchMapper } from '@/modules/branch/application/mappers/branch.mapper';
 import { ListBranchesRequestDto } from '@/modules/branch/application/dtos/list-branches/list-branches.request.dto';
 import { ListBranchesResponseDto } from '@/modules/branch/application/dtos/list-branches/list-branches.response.dto';
+import { FilterBranchesRequestDto } from '@/modules/branch/application/dtos/filter-branches/filter-branches.request.dto';
+import { FilterBranchesResponseDto } from '@/modules/branch/application/dtos/filter-branches/filter-branches.response.dto';
 
 @Controller('branches')
 export class BranchController {
@@ -27,6 +30,7 @@ export class BranchController {
     private readonly findByNameUC: FindBranchByNameUseCase,
     private readonly findAllUC: ListBranchesUseCase,
     private readonly softDeleteUC: SoftDeleteBranchUseCase,
+    private readonly filterUC: FilterBranchesUseCase,
   ) {}
 
   @Post()
@@ -88,6 +92,25 @@ export class BranchController {
       response: response
         .status(HttpStatus.OK)
         .json(branches.map(branch => BranchMapper.toResponseDto(branch)))
+    };
+  }
+
+  @Get('filter')
+  async filterBranches(@Query() query: FilterBranchesRequestDto, @Res() response: Response) {
+    const result = await this.filterUC.execute(query);
+    
+    const responseDto = new FilterBranchesResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total,
+      query.filter
+    );
+    
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(responseDto)
     };
   }
 
