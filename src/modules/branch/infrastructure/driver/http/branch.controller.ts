@@ -7,12 +7,15 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { CreateBranchDto } from '@/modules/branch/application/dtos/create-branch.dto';
+import { UpdateBranchDto } from '@/modules/branch/application/dtos/update-branch.dto';
 import { CreateBranchUseCase } from '@/modules/branch/application/use-cases/create-branch/create-branch.use-case';
+import { UpdateBranchUseCase } from '@/modules/branch/application/use-cases/update-branch/update-branch.use-case';
 import { ListBranchesUseCase } from '@/modules/branch/application/use-cases/list-branches/list-branches.use-case';
 import { FindBranchByNameUseCase } from '@/modules/branch/application/use-cases/find-branch-by-name/find-branch-by-name.use-case';
 import { SoftDeleteBranchUseCase } from '@/modules/branch/application/use-cases/soft-delete-branch/soft-delete-branch.use-case';
@@ -28,6 +31,7 @@ import { ParseFilterPipe } from './parse-filter.pipe';
 export class BranchController {
   constructor(
     private readonly createUC: CreateBranchUseCase,
+    private readonly updateUC: UpdateBranchUseCase,
     private readonly findByNameUC: FindBranchByNameUseCase,
     private readonly findAllUC: ListBranchesUseCase,
     private readonly softDeleteUC: SoftDeleteBranchUseCase,
@@ -50,6 +54,30 @@ export class BranchController {
     return {
       response: response
         .status(HttpStatus.CREATED)
+        .json(BranchMapper.toResponseDto(result.getValue()))
+    };
+  }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  async update(
+    @Param('id') id: string,
+    @Body() body: UpdateBranchDto,
+    @Res() response: Response
+  ) {
+    const result = await this.updateUC.execute(id, body);
+    
+    if (result.isFailure) {
+      return {
+        response: response
+          .status((result.errorValue() as any).statusCode || 400)
+          .json({ message: result.errorValue().message })
+      };
+    }
+
+    return {
+      response: response
+        .status(HttpStatus.OK)
         .json(BranchMapper.toResponseDto(result.getValue()))
     };
   }

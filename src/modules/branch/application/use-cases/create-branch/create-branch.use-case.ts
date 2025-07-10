@@ -4,7 +4,6 @@ import { Branch } from '@/modules/branch/domain/entities/branch.entity';
 import { CreateBranchDto } from '@/modules/branch/application/dtos/create-branch.dto';
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
-import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 
 @Injectable()
 export class CreateBranchUseCase {
@@ -13,9 +12,9 @@ export class CreateBranchUseCase {
   async execute(dto: CreateBranchDto): Promise<Result<Branch>> {
     try {
       const branch = Branch.create({
+        taxId: dto.taxId,
         name: dto.name,
-        officialId: dto.officialId,
-        sigla: dto.sigla,
+        code: dto.code,
         email: dto.email,
         phone: dto.phone,
         responsible: dto.responsible,

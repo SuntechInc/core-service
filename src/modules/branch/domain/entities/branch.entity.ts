@@ -1,11 +1,10 @@
 import { Entity } from '../../../../shared/core/entity';
-import { UniqueEntityID } from '../../../../shared/core/unique-entity-id';
 import { BranchStatus } from '../enums/branch-status.enum';
 
 interface BranchProps {
+  taxId: string;
   name: string;
-  officialId?: string;
-  sigla?: string;
+  code?: string;
   email?: string;
   phone?: string;
   responsible?: string;
@@ -18,24 +17,24 @@ interface BranchProps {
 }
 
 export class Branch extends Entity<BranchProps> {
-  private constructor(props: BranchProps, id?: UniqueEntityID) {
-    super(props, id?.toString());
+  private constructor(props: BranchProps, id?: string) {
+    super(props, id);
   }
 
-  static create(props: BranchProps, id?: UniqueEntityID): Branch {
+  static create(props: BranchProps, id?: string): Branch {
     return new Branch(props, id);
+  }
+
+  get taxId(): string {
+    return this.props.taxId;
   }
 
   get name(): string {
     return this.props.name;
   }
 
-  get officialId(): string | undefined {
-    return this.props.officialId;
-  }
-
-  get sigla(): string | undefined {
-    return this.props.sigla;
+  get code(): string | undefined {
+    return this.props.code;
   }
 
   get email(): string | undefined {

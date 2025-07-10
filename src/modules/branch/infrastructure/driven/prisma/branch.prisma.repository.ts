@@ -3,7 +3,6 @@ import { PrismaService } from '@/shared/infrastructure/database/prisma.service';
 import { IBranchRepository, PaginationOptions, PaginatedResult } from '@/modules/branch/application/ports/branch.repository';
 import { Branch } from '@/modules/branch/domain/entities/branch.entity';
 import { Prisma, Branch as PrismaBranch } from '@prisma/client';
-import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 import { PAGINATION_CONSTANTS } from '@/modules/branch/application/constants/pagination.constants';
 import { BranchFilters, BranchFilterOptions, BranchFilterResult } from '@/modules/branch/application/filters/branch-filters';
 
@@ -16,9 +15,9 @@ export class PrismaBranchRepository extends IBranchRepository {
   // ---------- helpers ----------
   private toDomain(raw: PrismaBranch): Branch {
     return Branch.create({
+      taxId: raw.taxId,
       name: raw.name,
-      officialId: raw.officialId ?? undefined,
-      sigla: raw.sigla ?? undefined,
+      code: raw.code ?? undefined,
       email: raw.email ?? undefined,
       phone: raw.phone ?? undefined,
       responsible: raw.responsible ?? undefined,
@@ -28,17 +27,16 @@ export class PrismaBranchRepository extends IBranchRepository {
       addressId: raw.addressId ?? undefined,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-    }, new UniqueEntityID(raw.id));
+    }, raw.id);
   }
 
   // ---------- CRUD ----------
   async create(entity: Branch): Promise<Branch> {
     const raw = await this.prisma.branch.create({
       data: {
-        id: entity.id.toString(),
+        taxId: entity.taxId,
         name: entity.name,
-        officialId: entity.officialId,
-        sigla: entity.sigla,
+        code: entity.code,
         email: entity.email,
         phone: entity.phone,
         responsible: entity.responsible,
@@ -69,9 +67,9 @@ export class PrismaBranchRepository extends IBranchRepository {
     const raw = await this.prisma.branch.update({
       where: { id: entity.id.toString() },
       data: {
+        taxId: entity.taxId,
         name: entity.name,
-        officialId: entity.officialId,
-        sigla: entity.sigla,
+        code: entity.code,
         email: entity.email,
         phone: entity.phone,
         responsible: entity.responsible,

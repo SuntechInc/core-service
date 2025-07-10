@@ -4,9 +4,9 @@ export class BranchMapper {
   static toResponseDto(branch: Branch) {
     return {
       id: branch.id.toString(),
+      taxId: branch.taxId,
       name: branch.name,
-      officialId: branch.officialId,
-      sigla: branch.sigla,
+      code: branch.code,
       email: branch.email,
       phone: branch.phone,
       responsible: branch.responsible,
