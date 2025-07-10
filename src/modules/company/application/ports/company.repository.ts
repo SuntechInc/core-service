@@ -1,4 +1,5 @@
 import { Company } from "../../domain/entities/company.entity";
+import { CompanyFilterOptions, CompanyFilterResult } from "../filters/company-filters";
 
 export interface PaginationOptions {
   page?: number;
@@ -26,4 +27,5 @@ export abstract class ICompanyRepository {
   abstract findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Company>>;
   abstract count(): Promise<number>;
   abstract findBaseCompany(): Promise<Company | null>;
+  abstract findWithFilters(options: CompanyFilterOptions): Promise<CompanyFilterResult<Company>>;
 }

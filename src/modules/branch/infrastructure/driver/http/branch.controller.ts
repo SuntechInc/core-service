@@ -22,6 +22,7 @@ import { ListBranchesRequestDto } from '@/modules/branch/application/dtos/list-b
 import { ListBranchesResponseDto } from '@/modules/branch/application/dtos/list-branches/list-branches.response.dto';
 import { FilterBranchesRequestDto } from '@/modules/branch/application/dtos/filter-branches/filter-branches.request.dto';
 import { FilterBranchesResponseDto } from '@/modules/branch/application/dtos/filter-branches/filter-branches.response.dto';
+import { ParseFilterPipe } from './parse-filter.pipe';
 
 @Controller('branches')
 export class BranchController {
@@ -88,8 +89,11 @@ export class BranchController {
   }
 
   @Get('filter')
-  async filterBranches(@Query() query: FilterBranchesRequestDto, @Res() response: Response) {
+  async filterBranches(@Query(ParseFilterPipe) query: FilterBranchesRequestDto, @Res() response: Response) {
+    console.log('query.filter', query.filter);
+    
     const result = await this.filterUC.execute(query);
+
     
     const responseDto = new FilterBranchesResponseDto(
       result.data,

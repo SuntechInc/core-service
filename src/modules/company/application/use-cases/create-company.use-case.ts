@@ -13,11 +13,8 @@ export class CreateCompanyUseCase {
 
   async execute(dto: CreateCompanyDto): Promise<Result<Company>> {
     try {
-      console.log('[CreateCompanyUseCase] Iniciando execução com DTO:', dto);
-      // Validações de negócio antes da criação
       const validationResult = await this.validateBusinessRules(dto);
       if (validationResult.isFailure) {
-        console.log('[CreateCompanyUseCase] Falha na validação de regras de negócio:', validationResult.errorValue());
         return Result.fail<Company>(validationResult.errorValue());
       }
 
@@ -36,7 +33,7 @@ export class CreateCompanyUseCase {
         isBaseCompany: dto.isBaseCompany,
         createdAt: new Date(),
         updatedAt: new Date(),
-      }, new UniqueEntityID());
+      });
       console.log('[CreateCompanyUseCase] Entidade Company criada:', company);
 
       const createdCompany = await this.companyRepository.create(company);
@@ -52,7 +49,6 @@ export class CreateCompanyUseCase {
 
   private async validateBusinessRules(dto: CreateCompanyDto): Promise<Result<void>> {
     try {
-      // Verificar se já existe empresa com mesmo CNPJ
       if (dto.taxId) {
         const existingByTaxId = await this.companyRepository.findByTaxId(dto.taxId);
         if (existingByTaxId) {
@@ -63,7 +59,6 @@ export class CreateCompanyUseCase {
         }
       }
 
-      // Verificar se já existe empresa com mesmo email
       if (dto.email) {
         const existingByEmail = await this.companyRepository.findByEmail(dto.email);
         if (existingByEmail) {
@@ -74,7 +69,6 @@ export class CreateCompanyUseCase {
         }
       }
 
-      // Verificar se já existe empresa com mesmo trading name (busca exata)
       const existingByTradingName = await this.companyRepository.findByTradingName(dto.tradingName);
       const exactMatch = existingByTradingName.find(company => 
         company.tradingName.toLowerCase() === dto.tradingName.toLowerCase()
@@ -86,7 +80,6 @@ export class CreateCompanyUseCase {
         );
       }
 
-      // Verificar se já existe uma base company quando tentando criar outra
       if (dto.isBaseCompany) {
         const existingBaseCompany = await this.companyRepository.findBaseCompany();
         if (existingBaseCompany) {
@@ -99,7 +92,6 @@ export class CreateCompanyUseCase {
 
       return Result.ok<void>();
     } catch (err) {
-      console.error('[CreateCompanyUseCase] Erro ao validar regras de negócio:', err);
       return Result.fail<void>(AppError.UnexpectedError(err));
     }
   }

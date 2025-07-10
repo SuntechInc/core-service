@@ -23,6 +23,10 @@ import { CompanyMapper } from '@/modules/company/application/mappers/company.map
 import { ListCompaniesRequestDto } from '@/modules/company/application/dtos/list-companies/list-companies.request.dto';
 import { ListCompaniesResponseDto } from '@/modules/company/application/dtos/list-companies/list-companies.response.dto';
 import { UpdateCompanyDto } from '@/modules/company/application/dtos/update-company.dto';
+import { ParseCompanyFilterPipe } from './parse-company-filter.pipe';
+import { FilterCompaniesRequestDto } from '@/modules/company/application/dtos/filter-companies/filter-companies.request.dto';
+import { FilterCompaniesUseCase } from '@/modules/company/application/use-cases/filter-companies/filter-companies.use-case';
+import { FilterCompaniesResponseDto } from '@/modules/company/application/dtos/filter-companies/filter-companies.response.dto';
 // import { FindCompanyByIdUseCase } from '@/modules/company/application/use-cases/find-company-by-id.use-case';
 
 @Controller('companies')
@@ -34,6 +38,7 @@ export class CompanyController {
     private readonly findByNameUC: FindCompaniesByTradingNameUseCase,
     private readonly updateUC: UpdateCompanyUseCase,
     private readonly softDeleteUC: SoftDeleteCompanyUseCase,
+    private readonly filterUC: FilterCompaniesUseCase,
     // private readonly findUC: FindCompanyByIdUseCase,
   ) {}
 
@@ -117,6 +122,26 @@ export class CompanyController {
       response: response
         .status(HttpStatus.OK)
         .json(companies.map(company => CompanyMapper.toResponseDto(company)))
+    };
+  }
+
+  @Get('filter')
+  async filterCompanies(
+    @Query(ParseCompanyFilterPipe) query: FilterCompaniesRequestDto,
+    @Res() response: Response
+  ) {
+    const result = await this.filterUC.execute(query);
+    const responseDto = new FilterCompaniesResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total,
+      query.filter
+    );
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(responseDto)
     };
   }
 

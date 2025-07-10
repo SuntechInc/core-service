@@ -8,6 +8,7 @@ import { FindCompanyByTaxIdUseCase } from './application/use-cases/find-company-
 import { FindCompaniesByTradingNameUseCase } from './application/use-cases/find-companies-by-trading-name/find-companies-by-trading-name.use-case';
 import { UpdateCompanyUseCase } from './application/use-cases/update-company/update-company.use-case';
 import { SoftDeleteCompanyUseCase } from './application/use-cases/soft-delete-company/soft-delete-company.use-case';
+import { FilterCompaniesUseCase } from './application/use-cases/filter-companies/filter-companies.use-case';
 // import { FindCompanyByIdUseCase } from './application/use-cases/find-company-by-id.use-case';
 import { CompanyController } from './infrastructure/driver/http/company.controller';
 import { SeedService } from '../../seed/seed.service';
@@ -27,6 +28,7 @@ import { SeedService } from '../../seed/seed.service';
     FindCompaniesByTradingNameUseCase,
     UpdateCompanyUseCase,
     SoftDeleteCompanyUseCase,
+    FilterCompaniesUseCase,
     // FindCompanyByIdUseCase,
     SeedService,
   ],

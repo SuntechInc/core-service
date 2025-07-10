@@ -25,7 +25,7 @@ export class CreateBranchUseCase {
         addressId: dto.addressId,
         createdAt: new Date(),
         updatedAt: new Date(),
-      }, new UniqueEntityID());
+      });
 
       const createdBranch = await this.branchRepository.create(branch);
       return Result.ok<Branch>(createdBranch);

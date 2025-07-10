@@ -19,7 +19,7 @@ export class CreateDepartmentUseCase {
         branchId: dto.branchId,
         createdAt: new Date(),
         updatedAt: new Date(),
-      }, new UniqueEntityID());
+      });
 
       const createdDepartment = await this.departmentRepository.create(department);
       return Result.ok<Department>(createdDepartment);
