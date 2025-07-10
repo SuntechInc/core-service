@@ -1,4 +1,5 @@
 import { Branch } from "@/modules/branch/domain/entities/branch.entity";
+import { BranchListItemDto } from "../list-branches/list-branches.response.dto";
 
 export class FilterBranchesResponseDto {
   data: BranchListItemDto[];
@@ -15,7 +16,7 @@ export class FilterBranchesResponseDto {
     parsed: any | null;
   };
 
-  constructor(branches: Branch[], page: number, size: number, total: number, filter?: string) {
+  constructor(branches: Branch[], page: number, size: number, total: number, filter?: any) {
     this.data = branches.map(branch => new BranchListItemDto(branch));
     this.pagination = {
       page,
@@ -25,49 +26,24 @@ export class FilterBranchesResponseDto {
       hasNext: page < Math.ceil(total / size),
       hasPrevious: page > 1,
     };
-    this.filter = {
-      applied: filter || null,
-      parsed: filter ? this.parseFilter(filter) : null,
-    };
-  }
-
-  private parseFilter(filterString: string): any {
-    try {
-      return JSON.parse(filterString);
-    } catch {
-      return null;
+    let applied: string | null = null;
+    let parsed: any | null = null;
+    if (filter) {
+      if (typeof filter === 'string') {
+        applied = filter;
+        try {
+          parsed = JSON.parse(filter);
+        } catch {
+          parsed = null;
+        }
+      } else if (typeof filter === 'object') {
+        applied = JSON.stringify(filter);
+        parsed = filter;
+      }
     }
-  }
-}
-
-export class BranchListItemDto {
-  id: string;
-  name: string;
-  officialId?: string;
-  sigla?: string;
-  email?: string;
-  phone?: string;
-  responsible?: string;
-  isHeadquarter: boolean;
-  status: string;
-  companyId: string;
-  addressId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-
-  constructor(branch: Branch) {
-    this.id = branch.id;
-    this.name = branch.name;
-    this.officialId = branch.officialId;
-    this.sigla = branch.sigla;
-    this.email = branch.email;
-    this.phone = branch.phone;
-    this.responsible = branch.responsible;
-    this.isHeadquarter = branch.isHeadquarter;
-    this.status = branch.status;
-    this.companyId = branch.companyId;
-    this.addressId = branch.addressId;
-    this.createdAt = branch.createdAt;
-    this.updatedAt = branch.updatedAt;
+    this.filter = {
+      applied,
+      parsed,
+    };
   }
 } 

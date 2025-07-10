@@ -10,8 +10,7 @@ export class FilterBranchesUseCase {
   constructor(private readonly branchRepository: IBranchRepository) {}
 
   async execute(request: FilterBranchesRequestDto): Promise<BranchFilterResult<Branch>> {
-    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, companyId } = request;
-    
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, filter, companyId } = request;
     
     const normalizedPage = Math.max(PAGINATION_CONSTANTS.MIN_PAGE, page);
     const normalizedSize = Math.min(Math.max(PAGINATION_CONSTANTS.MIN_SIZE, size), PAGINATION_CONSTANTS.MAX_SIZE);
@@ -19,10 +18,10 @@ export class FilterBranchesUseCase {
     const skip = (normalizedPage - 1) * normalizedSize;
     const take = normalizedSize;
     
-    const filter = request.getParsedFilter();
+    const parsedFilter = filter ? JSON.parse(filter) : undefined;
     
     const options: BranchFilterOptions = {
-      filter,
+      filter: parsedFilter,
       skip,
       take,
       orderBy: { createdAt: 'desc' },

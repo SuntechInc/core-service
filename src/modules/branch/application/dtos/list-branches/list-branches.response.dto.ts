@@ -2,9 +2,9 @@ import { Branch } from "@/modules/branch/domain/entities/branch.entity";
 
 export class BranchListItemDto {
   id: string;
+  taxId: string;
   name: string;
-  officialId?: string;
-  sigla?: string;
+  code?: string;
   email?: string;
   phone?: string;
   responsible?: string;
@@ -17,9 +17,9 @@ export class BranchListItemDto {
 
   constructor(branch: Branch) {
     this.id = branch.id;
+    this.taxId = branch.taxId;
     this.name = branch.name;
-    this.officialId = branch.officialId;
-    this.sigla = branch.sigla;
+    this.code = branch.code;
     this.email = branch.email;
     this.phone = branch.phone;
     this.responsible = branch.responsible;

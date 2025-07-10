@@ -1,19 +1,19 @@
-import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString, IsUUID, MinLength, Matches, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString, IsUUID, MinLength, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { BranchStatus } from '../../domain/enums/branch-status.enum';
 
-export class CreateBranchDto {
+export class UpdateBranchDto {
   @IsString()
   @MinLength(11, { message: 'Tax ID must be at least 11 characters long' })
-  @IsNotEmpty({ message: 'Tax ID is required' })
+  @IsOptional()
   @Transform(({ value }) => value?.replace(/[^\d]/g, '')) // Remove caracteres não numéricos
-  taxId: string;
+  taxId?: string;
 
   @IsString()
   @MinLength(3, { message: 'Branch name must be at least 3 characters long' })
-  @IsNotEmpty({ message: 'Branch name is required' })
+  @IsOptional()
   @Transform(({ value }) => value?.trim())
-  name: string;
+  name?: string;
 
   @IsString()
   @IsOptional()
@@ -42,10 +42,8 @@ export class CreateBranchDto {
   isHeadquarter?: boolean;
 
   @IsEnum(BranchStatus)
-  status: BranchStatus;
-
-  @IsUUID()
-  companyId: string;
+  @IsOptional()
+  status?: BranchStatus;
 
   @IsUUID()
   @IsOptional()

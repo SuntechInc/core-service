@@ -5,6 +5,7 @@ import { Company } from '@/modules/company/domain/entities/company.entity';
 import { Prisma, Company as PrismaCompany } from '@prisma/client';
 import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 import { PAGINATION_CONSTANTS } from '@/modules/company/application/constants/pagination.constants';
+import { CompanyFilters, CompanyFilterOptions, CompanyFilterResult } from '@/modules/company/application/filters/company-filters';
 
 @Injectable()
 export class PrismaCompanyRepository extends ICompanyRepository {
@@ -34,7 +35,6 @@ export class PrismaCompanyRepository extends ICompanyRepository {
   async create(entity: Company): Promise<Company> {
     const raw = await this.prisma.company.create({
       data: {
-        id: entity.id,
         tradingName: entity.tradingName,
         legalName: entity.legalName,
         taxId: entity.taxId,
@@ -146,5 +146,35 @@ export class PrismaCompanyRepository extends ICompanyRepository {
   async findBaseCompany(): Promise<Company | null> {
     const raw = await this.prisma.company.findFirst({ where: { isBaseCompany: true } });
     return raw ? this.toDomain(raw) : null;
+  }
+
+  async findWithFilters(options: CompanyFilterOptions): Promise<CompanyFilterResult<Company>> {
+    const { filter, skip = 0, take = 20, orderBy, include } = options;
+    const where = CompanyFilters.buildWhere(filter);
+    const finalTake = take;
+
+    const [companies, total] = await Promise.all([
+      this.prisma.company.findMany({
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
+      }),
+      this.prisma.company.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
+
+    return {
+      data: companies.map(company => this.toDomain(company)),
+      total,
+      page,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
   }
 } 

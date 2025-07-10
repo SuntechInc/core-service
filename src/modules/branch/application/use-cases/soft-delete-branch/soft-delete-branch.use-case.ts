@@ -4,7 +4,6 @@ import { Branch } from '@/modules/branch/domain/entities/branch.entity';
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
 import { BranchStatus } from '@/modules/branch/domain/enums/branch-status.enum';
-import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 
 @Injectable()
 export class SoftDeleteBranchUseCase {
@@ -21,9 +20,9 @@ export class SoftDeleteBranchUseCase {
       }
 
       const updatedBranch = Branch.create({
+        taxId: branch.taxId,
         name: branch.name,
-        officialId: branch.officialId,
-        sigla: branch.sigla,
+        code: branch.code,
         email: branch.email,
         phone: branch.phone,
         responsible: branch.responsible,
@@ -33,7 +32,7 @@ export class SoftDeleteBranchUseCase {
         addressId: branch.addressId,
         createdAt: branch.createdAt,
         updatedAt: new Date(),
-      }, new UniqueEntityID(branch.id.toString()));
+      }, id);
 
       const result = await this.branchRepository.update(updatedBranch);
       return Result.ok<Branch>(result);
