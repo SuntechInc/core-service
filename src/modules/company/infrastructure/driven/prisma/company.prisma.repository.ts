@@ -35,7 +35,6 @@ export class PrismaCompanyRepository extends ICompanyRepository {
   async create(entity: Company): Promise<Company> {
     const raw = await this.prisma.company.create({
       data: {
-        id: entity.id,
         tradingName: entity.tradingName,
         legalName: entity.legalName,
         taxId: entity.taxId,
