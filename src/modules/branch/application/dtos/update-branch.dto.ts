@@ -4,7 +4,7 @@ import { BranchStatus } from '../../domain/enums/branch-status.enum';
 
 export class UpdateBranchDto {
   @IsString()
-  @MinLength(11, { message: 'Tax ID must be at least 11 characters long' })
+  @MinLength(3, { message: 'Tax ID must be at least 11 characters long' })
   @IsOptional()
   @Transform(({ value }) => value?.replace(/[^\d]/g, '')) // Remove caracteres não numéricos
   taxId?: string;
