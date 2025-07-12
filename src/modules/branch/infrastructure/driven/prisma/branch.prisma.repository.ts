@@ -44,6 +44,7 @@ export class PrismaBranchRepository extends IBranchRepository {
         status: entity.status,
         companyId: entity.companyId,
         addressId: entity.addressId,
+        // Não passamos o ID - deixamos o Prisma gerar com cuid()
       },
     });
     return this.toDomain(raw);
@@ -88,26 +89,7 @@ export class PrismaBranchRepository extends IBranchRepository {
     });
   }
 
-  async findAll(companyId: string): Promise<Branch[]> {
-    const branches = await this.prisma.branch.findMany({
-      where: { companyId },
-    });
-    return branches.map(branch => this.toDomain(branch));
-  }
 
-  async findByName(name: string, companyId: string): Promise<Branch[]> {
-    const branches = await this.prisma.branch.findMany({
-      where: {
-        name: {
-          contains: name,
-          mode: 'insensitive',
-        },
-        companyId,
-      },
-      orderBy: { name: 'asc' },
-    });
-    return branches.map(branch => this.toDomain(branch));
-  }
 
   async findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>> {
     const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take, companyId } = options;
