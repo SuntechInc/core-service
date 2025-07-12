@@ -3,7 +3,7 @@ export abstract class Entity<T> {
   protected readonly props: T;
 
   constructor(props: T, id?: string) {
-    this._id = id || crypto.randomUUID();
+    this._id = id || '';
     this.props = props;
   }
 

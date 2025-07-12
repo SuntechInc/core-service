@@ -22,9 +22,7 @@ export abstract class IBranchRepository {
   abstract findByCompanyId(companyId: string): Promise<Branch[]>;
   abstract update(entity: Branch): Promise<Branch>;
   abstract delete(id: string): Promise<void>; 
-  abstract findAll(companyId: string): Promise<Branch[]>;
   abstract findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>>;
-  abstract findByName(name: string, companyId: string): Promise<Branch[]>;
   abstract count(companyId: string): Promise<number>;
   abstract findWithFilters(options: BranchFilterOptions): Promise<BranchFilterResult<Branch>>;
 } 

@@ -23,7 +23,7 @@ import { CompanyMapper } from '@/modules/company/application/mappers/company.map
 import { ListCompaniesRequestDto } from '@/modules/company/application/dtos/list-companies/list-companies.request.dto';
 import { ListCompaniesResponseDto } from '@/modules/company/application/dtos/list-companies/list-companies.response.dto';
 import { UpdateCompanyDto } from '@/modules/company/application/dtos/update-company.dto';
-import { ParseCompanyFilterPipe } from './parse-company-filter.pipe';
+import { FilterPipeFactory } from '@/shared/infrastructure/filters/filter-pipe.factory';
 import { FilterCompaniesRequestDto } from '@/modules/company/application/dtos/filter-companies/filter-companies.request.dto';
 import { FilterCompaniesUseCase } from '@/modules/company/application/use-cases/filter-companies/filter-companies.use-case';
 import { FilterCompaniesResponseDto } from '@/modules/company/application/dtos/filter-companies/filter-companies.response.dto';
@@ -127,7 +127,7 @@ export class CompanyController {
 
   @Get('filter')
   async filterCompanies(
-    @Query(ParseCompanyFilterPipe) query: FilterCompaniesRequestDto,
+    @Query(FilterPipeFactory.createCompanyFilterPipe()) query: FilterCompaniesRequestDto,
     @Res() response: Response
   ) {
     const result = await this.filterUC.execute(query);

@@ -16,24 +16,18 @@ import { CreateBranchDto } from '@/modules/branch/application/dtos/create-branch
 import { UpdateBranchDto } from '@/modules/branch/application/dtos/update-branch.dto';
 import { CreateBranchUseCase } from '@/modules/branch/application/use-cases/create-branch/create-branch.use-case';
 import { UpdateBranchUseCase } from '@/modules/branch/application/use-cases/update-branch/update-branch.use-case';
-import { ListBranchesUseCase } from '@/modules/branch/application/use-cases/list-branches/list-branches.use-case';
-import { FindBranchByNameUseCase } from '@/modules/branch/application/use-cases/find-branch-by-name/find-branch-by-name.use-case';
 import { SoftDeleteBranchUseCase } from '@/modules/branch/application/use-cases/soft-delete-branch/soft-delete-branch.use-case';
 import { FilterBranchesUseCase } from '@/modules/branch/application/use-cases/filter-branches/filter-branches.use-case';
 import { BranchMapper } from '@/modules/branch/application/mappers/branch.mapper';
-import { ListBranchesRequestDto } from '@/modules/branch/application/dtos/list-branches/list-branches.request.dto';
-import { ListBranchesResponseDto } from '@/modules/branch/application/dtos/list-branches/list-branches.response.dto';
 import { FilterBranchesRequestDto } from '@/modules/branch/application/dtos/filter-branches/filter-branches.request.dto';
 import { FilterBranchesResponseDto } from '@/modules/branch/application/dtos/filter-branches/filter-branches.response.dto';
-import { ParseFilterPipe } from './parse-filter.pipe';
+import { FilterPipeFactory } from '@/shared/infrastructure/filters/filter-pipe.factory';
 
 @Controller('branches')
 export class BranchController {
   constructor(
     private readonly createUC: CreateBranchUseCase,
     private readonly updateUC: UpdateBranchUseCase,
-    private readonly findByNameUC: FindBranchByNameUseCase,
-    private readonly findAllUC: ListBranchesUseCase,
     private readonly softDeleteUC: SoftDeleteBranchUseCase,
     private readonly filterUC: FilterBranchesUseCase,
   ) {}
@@ -82,42 +76,12 @@ export class BranchController {
     };
   }
 
-  @Get('search/name/:name')
-  @HttpCode(HttpStatus.OK)
-  async findByName(
-    @Param('name') name: string, 
-    @Query('companyId') companyId: string,
-    @Res() response: Response
-  ) {
-    const branches = await this.findByNameUC.execute(name, companyId);
-    
-    return {
-      response: response
-        .status(HttpStatus.OK)
-        .json(branches.map(branch => BranchMapper.toResponseDto(branch)))
-    };
-  }
 
-  @Get()
-  async findAll(@Query() query: ListBranchesRequestDto, @Res() response: Response) {
-    const result = await this.findAllUC.executePaginated(query);
-    
-    const responseDto = new ListBranchesResponseDto(
-      result.data,
-      result.page,
-      result.size,
-      result.total
-    );
-    
-    return {
-      response: response
-        .status(HttpStatus.OK)
-        .json(responseDto)
-    };
-  }
+
+
 
   @Get('filter')
-  async filterBranches(@Query(ParseFilterPipe) query: FilterBranchesRequestDto, @Res() response: Response) {
+  async filterBranches(@Query(FilterPipeFactory.createBranchFilterPipe()) query: FilterBranchesRequestDto, @Res() response: Response) {
     console.log('query.filter', query.filter);
     
     const result = await this.filterUC.execute(query);

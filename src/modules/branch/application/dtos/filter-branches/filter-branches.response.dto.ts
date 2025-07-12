@@ -1,8 +1,8 @@
 import { Branch } from "@/modules/branch/domain/entities/branch.entity";
-import { BranchListItemDto } from "../list-branches/list-branches.response.dto";
+import { BranchMapper } from "../../mappers/branch.mapper";
 
 export class FilterBranchesResponseDto {
-  data: BranchListItemDto[];
+  data: any[];
   pagination: {
     page: number;
     size: number;
@@ -17,7 +17,7 @@ export class FilterBranchesResponseDto {
   };
 
   constructor(branches: Branch[], page: number, size: number, total: number, filter?: any) {
-    this.data = branches.map(branch => new BranchListItemDto(branch));
+    this.data = branches.map(branch => BranchMapper.toResponseDto(branch));
     this.pagination = {
       page,
       size,
