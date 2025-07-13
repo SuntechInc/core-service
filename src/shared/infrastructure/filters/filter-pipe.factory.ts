@@ -2,6 +2,7 @@ import { ParseFilterPipe, FilterPipeOptions } from './parse-filter.pipe';
 import { EnumUtils } from './enum-utils';
 import { BranchStatus } from '@/modules/branch/domain/enums/branch-status.enum';
 import { CompanyStatus } from '@/modules/company/domain/enums/company-status.enum';
+import { DepartmentStatus } from '@/modules/department/domain/enums/department-status.enum';
 
 export class FilterPipeFactory {
   /**
@@ -27,6 +28,20 @@ export class FilterPipeFactory {
       idFields: ['companyId'],
       enumFields: {
         status: EnumUtils.createEnumMap(CompanyStatus)
+      }
+    });
+  }
+
+  /**
+   * Cria um pipe de filtro para departments com enums type-safe
+   */
+  static createDepartmentFilterPipe(): ParseFilterPipe {
+    return new ParseFilterPipe({
+      booleanFields: [],
+      requiredFields: ['companyId'],
+      idFields: ['branchId'],
+      enumFields: {
+        status: EnumUtils.createEnumMap(DepartmentStatus)
       }
     });
   }
