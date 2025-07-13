@@ -5,7 +5,8 @@ export class BranchMapper {
     return {
       id: branch.id.toString(),
       taxId: branch.taxId,
-      name: branch.name,
+      tradingName: branch.tradingName,
+      legalName: branch.legalName,
       code: branch.code,
       email: branch.email,
       phone: branch.phone,

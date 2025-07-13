@@ -37,11 +37,20 @@ export class BranchFilters {
   }
 
   /**
-   * Cria filtro para busca por nome (case insensitive)
+   * Cria filtro para busca por nome fantasia (case insensitive)
    */
-  static byName(name: string): BranchFilter {
+  static byTradingName(tradingName: string): BranchFilter {
     return {
-      name: { $contains: name }
+      tradingName: { $contains: tradingName }
+    };
+  }
+
+  /**
+   * Cria filtro para busca por razão social (case insensitive)
+   */
+  static byLegalName(legalName: string): BranchFilter {
+    return {
+      legalName: { $contains: legalName }
     };
   }
 
@@ -64,11 +73,11 @@ export class BranchFilters {
   }
 
   /**
-   * Cria filtro para busca por sigla
+   * Cria filtro para busca por código
    */
-  static bySigla(sigla: string): BranchFilter {
+  static byCode(code: string): BranchFilter {
     return {
-      sigla: { $contains: sigla }
+      code: { $contains: code }
     };
   }
 
@@ -100,11 +109,11 @@ export class BranchFilters {
   }
 
   /**
-   * Cria filtro para busca por ID oficial
+   * Cria filtro para busca por CNPJ
    */
-  static byOfficialId(officialId: string): BranchFilter {
+  static byTaxId(taxId: string): BranchFilter {
     return {
-      officialId: { $contains: officialId }
+      taxId: { $contains: taxId }
     };
   }
 
@@ -140,12 +149,13 @@ export class BranchFilters {
    */
   static textSearch(searchTerm: string): BranchFilter {
     return this.or(
-      this.byName(searchTerm),
+      this.byTradingName(searchTerm),
+      this.byLegalName(searchTerm),
       this.byEmail(searchTerm),
       this.byPhone(searchTerm),
       this.byResponsible(searchTerm),
-      this.bySigla(searchTerm),
-      this.byOfficialId(searchTerm)
+      this.byCode(searchTerm),
+      this.byTaxId(searchTerm)
     );
   }
 

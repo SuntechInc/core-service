@@ -21,7 +21,8 @@ export class SoftDeleteBranchUseCase {
 
       const updatedBranch = Branch.create({
         taxId: branch.taxId,
-        name: branch.name,
+        tradingName: branch.tradingName,
+        legalName: branch.legalName,
         code: branch.code,
         email: branch.email,
         phone: branch.phone,

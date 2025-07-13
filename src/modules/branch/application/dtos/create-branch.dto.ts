@@ -10,10 +10,16 @@ export class CreateBranchDto {
   taxId: string;
 
   @IsString()
-  @MinLength(3, { message: 'Branch name must be at least 3 characters long' })
-  @IsNotEmpty({ message: 'Branch name is required' })
+  @MinLength(3, { message: 'Trading name must be at least 3 characters long' })
+  @IsNotEmpty({ message: 'Trading name is required' })
   @Transform(({ value }) => value?.trim())
-  name: string;
+  tradingName: string;
+
+  @IsString()
+  @MinLength(3, { message: 'Legal name must be at least 3 characters long' })
+  @IsNotEmpty({ message: 'Legal name is required' })
+  @Transform(({ value }) => value?.trim())
+  legalName: string;
 
   @IsString()
   @IsOptional()

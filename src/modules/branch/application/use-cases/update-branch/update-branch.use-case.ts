@@ -21,7 +21,8 @@ export class UpdateBranchUseCase {
 
       const updatedBranch = Branch.create({
         taxId: dto.taxId ?? existingBranch.taxId,
-        name: dto.name ?? existingBranch.name,
+        tradingName: dto.tradingName ?? existingBranch.tradingName,
+        legalName: dto.legalName ?? existingBranch.legalName,
         code: dto.code ?? existingBranch.code,
         email: dto.email ?? existingBranch.email,
         phone: dto.phone ?? existingBranch.phone,
