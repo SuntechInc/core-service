@@ -13,7 +13,8 @@ export class CreateBranchUseCase {
     try {
       const branch = Branch.create({
         taxId: dto.taxId,
-        name: dto.name,
+        tradingName: dto.tradingName,
+        legalName: dto.legalName,
         code: dto.code,
         email: dto.email,
         phone: dto.phone,

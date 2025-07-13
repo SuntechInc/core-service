@@ -124,7 +124,8 @@ model Company {
 model Branch {
     id            String       @id @default(cuid()) @map("id_branch")
     taxId         String       @unique() @map("branch_tax_id")
-    name          String       @map("branch_name")
+    tradingName   String       @map("branch_trading_name")
+    legalName     String       @map("branch_legal_name")
     code          String?      @map("branch_code")
     email         String?      @map("branch_email")
     phone         String?      @map("branch_phone")
@@ -145,7 +146,7 @@ model Branch {
     employees   Employee[]
     jobTitles   JobTitle[]
 
-    @@unique([name, companyId, code])
+    @@unique([legalName, tradingName, companyId, code])
     @@map("branches")
 }
 

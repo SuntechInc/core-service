@@ -10,10 +10,16 @@ export class UpdateBranchDto {
   taxId?: string;
 
   @IsString()
-  @MinLength(3, { message: 'Branch name must be at least 3 characters long' })
+  @MinLength(3, { message: 'Trading name must be at least 3 characters long' })
   @IsOptional()
   @Transform(({ value }) => value?.trim())
-  name?: string;
+  tradingName?: string;
+
+  @IsString()
+  @MinLength(3, { message: 'Legal name must be at least 3 characters long' })
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  legalName?: string;
 
   @IsString()
   @IsOptional()

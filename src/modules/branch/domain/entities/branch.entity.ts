@@ -3,7 +3,8 @@ import { BranchStatus } from '../enums/branch-status.enum';
 
 interface BranchProps {
   taxId: string;
-  name: string;
+  tradingName: string;
+  legalName: string;
   code?: string;
   email?: string;
   phone?: string;
@@ -29,8 +30,12 @@ export class Branch extends Entity<BranchProps> {
     return this.props.taxId;
   }
 
-  get name(): string {
-    return this.props.name;
+  get tradingName(): string {
+    return this.props.tradingName;
+  }
+
+  get legalName(): string {
+    return this.props.legalName;
   }
 
   get code(): string | undefined {

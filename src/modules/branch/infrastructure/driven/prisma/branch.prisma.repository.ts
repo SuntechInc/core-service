@@ -16,7 +16,8 @@ export class PrismaBranchRepository extends IBranchRepository {
   private toDomain(raw: PrismaBranch): Branch {
     return Branch.create({
       taxId: raw.taxId,
-      name: raw.name,
+      tradingName: raw.tradingName,
+      legalName: raw.legalName,
       code: raw.code ?? undefined,
       email: raw.email ?? undefined,
       phone: raw.phone ?? undefined,
@@ -35,7 +36,8 @@ export class PrismaBranchRepository extends IBranchRepository {
     const raw = await this.prisma.branch.create({
       data: {
         taxId: entity.taxId,
-        name: entity.name,
+        tradingName: entity.tradingName,
+        legalName: entity.legalName,
         code: entity.code,
         email: entity.email,
         phone: entity.phone,
@@ -69,7 +71,8 @@ export class PrismaBranchRepository extends IBranchRepository {
       where: { id: entity.id.toString() },
       data: {
         taxId: entity.taxId,
-        name: entity.name,
+        tradingName: entity.tradingName,
+        legalName: entity.legalName,
         code: entity.code,
         email: entity.email,
         phone: entity.phone,
@@ -88,8 +91,6 @@ export class PrismaBranchRepository extends IBranchRepository {
       where: { id },
     });
   }
-
-
 
   async findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Branch>> {
     const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take, companyId } = options;

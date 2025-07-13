@@ -8,13 +8,19 @@ GET /branches/filter?filter={JSON_FILTER}&page=1&size=10
 
 ## Exemplos de Filtros
 
-### 1. Busca por Nome
+### 1. Busca por Nome Fantasia
 ```bash
-# Buscar branches que contenham "matriz" no nome
-GET /branches/filter?filter={"name":{"$contains":"matriz"}}
+# Buscar branches que contenham "matriz" no nome fantasia
+GET /branches/filter?filter={"tradingName":{"$contains":"matriz"}}
 ```
 
-### 2. Busca por Status
+### 2. Busca por Razão Social
+```bash
+# Buscar branches que contenham "Ltda" na razão social
+GET /branches/filter?filter={"legalName":{"$contains":"Ltda"}}
+```
+
+### 3. Busca por Status
 ```bash
 # Buscar branches ativas
 GET /branches/filter?filter={"status":{"$eq":"ACTIVE"}}
@@ -23,7 +29,7 @@ GET /branches/filter?filter={"status":{"$eq":"ACTIVE"}}
 GET /branches/filter?filter={"status":{"$eq":"INACTIVE"}}
 ```
 
-### 3. Buscar Sedes
+### 4. Buscar Sedes
 ```bash
 # Buscar apenas sedes
 GET /branches/filter?filter={"isHeadquarter":{"$eq":true}}
@@ -32,43 +38,43 @@ GET /branches/filter?filter={"isHeadquarter":{"$eq":true}}
 GET /branches/filter?filter={"isHeadquarter":{"$eq":false}}
 ```
 
-### 4. Busca por Empresa
+### 5. Busca por Empresa
 ```bash
 # Buscar branches de uma empresa específica
 GET /branches/filter?filter={"companyId":{"$eq":"123e4567-e89b-12d3-a456-426614174000"}}
 ```
 
-### 5. Busca por Email
+### 6. Busca por Email
 ```bash
 # Buscar branches que contenham "@gmail.com" no email
 GET /branches/filter?filter={"email":{"$contains":"@gmail.com"}}
 ```
 
-### 6. Busca por Telefone
+### 7. Busca por Telefone
 ```bash
 # Buscar branches que contenham "11" no telefone
 GET /branches/filter?filter={"phone":{"$contains":"11"}}
 ```
 
-### 7. Busca por Responsável
+### 8. Busca por Responsável
 ```bash
 # Buscar branches onde o responsável contenha "João"
 GET /branches/filter?filter={"responsible":{"$contains":"João"}}
 ```
 
-### 8. Busca por Sigla
+### 9. Busca por Código
 ```bash
-# Buscar branches que contenham "FC" na sigla
-GET /branches/filter?filter={"sigla":{"$contains":"FC"}}
+# Buscar branches que contenham "FC" no código
+GET /branches/filter?filter={"code":{"$contains":"FC"}}
 ```
 
-### 9. Busca por ID Oficial
+### 10. Busca por CNPJ
 ```bash
-# Buscar branches que contenham "FIL" no ID oficial
-GET /branches/filter?filter={"officialId":{"$contains":"FIL"}}
+# Buscar branches que contenham "123456" no CNPJ
+GET /branches/filter?filter={"taxId":{"$contains":"123456"}}
 ```
 
-### 10. Múltiplos Filtros (AND)
+### 11. Múltiplos Filtros (AND)
 ```bash
 # Buscar branches ativas que são sedes
 GET /branches/filter?filter={"$and":[{"status":{"$eq":"ACTIVE"}},{"isHeadquarter":{"$eq":true}}]}
@@ -77,37 +83,37 @@ GET /branches/filter?filter={"$and":[{"status":{"$eq":"ACTIVE"}},{"isHeadquarter
 GET /branches/filter?filter={"$and":[{"status":{"$eq":"ACTIVE"}},{"companyId":{"$eq":"123e4567-e89b-12d3-a456-426614174000"}}]}
 ```
 
-### 11. Filtros OR
+### 12. Filtros OR
 ```bash
 # Buscar branches que sejam sedes OU tenham status ACTIVE
 GET /branches/filter?filter={"$or":[{"isHeadquarter":{"$eq":true}},{"status":{"$eq":"ACTIVE"}}]}
 ```
 
-### 12. Busca de Texto em Múltiplos Campos
+### 13. Busca de Texto em Múltiplos Campos
 ```bash
-# Buscar branches que contenham "centro" no nome OU email OU telefone
-GET /branches/filter?filter={"$or":[{"name":{"$contains":"centro"}},{"email":{"$contains":"centro"}},{"phone":{"$contains":"centro"}}]}
+# Buscar branches que contenham "centro" no nome fantasia OU razão social OU email
+GET /branches/filter?filter={"$or":[{"tradingName":{"$contains":"centro"}},{"legalName":{"$contains":"centro"}},{"email":{"$contains":"centro"}}]}
 ```
 
-### 13. Busca por Múltiplos Status
+### 14. Busca por Múltiplos Status
 ```bash
 # Buscar branches com status ACTIVE ou SUSPENDED
 GET /branches/filter?filter={"status":{"$in":["ACTIVE","SUSPENDED"]}}
 ```
 
-### 14. Busca por Múltiplas Empresas
+### 15. Busca por Múltiplas Empresas
 ```bash
 # Buscar branches de múltiplas empresas
 GET /branches/filter?filter={"companyId":{"$in":["123e4567-e89b-12d3-a456-426614174000","987fcdeb-51a2-43d1-b789-123456789abc"]}}
 ```
 
-### 15. Busca por Data de Criação
+### 16. Busca por Data de Criação
 ```bash
 # Buscar branches criadas entre 2024-01-01 e 2024-12-31
 GET /branches/filter?filter={"createdAt":{"$between":["2024-01-01","2024-12-31"]}}
 ```
 
-### 16. Branches com Endereço
+### 17. Branches com Endereço
 ```bash
 # Buscar branches que tenham endereço
 GET /branches/filter?filter={"addressId":{"$null":false}}
@@ -116,10 +122,10 @@ GET /branches/filter?filter={"addressId":{"$null":false}}
 GET /branches/filter?filter={"addressId":{"$null":true}}
 ```
 
-### 17. Combinação Complexa
+### 18. Combinação Complexa
 ```bash
-# Buscar branches ativas que são sedes OU tenham "matriz" no nome
-GET /branches/filter?filter={"$and":[{"status":{"$eq":"ACTIVE"}},{"$or":[{"isHeadquarter":{"$eq":true}},{"name":{"$contains":"matriz"}}]}]}
+# Buscar branches ativas que são sedes OU tenham "matriz" no nome fantasia
+GET /branches/filter?filter={"$and":[{"status":{"$eq":"ACTIVE"}},{"$or":[{"isHeadquarter":{"$eq":true}},{"tradingName":{"$contains":"matriz"}}]}]}
 ```
 
 ## Exemplos de Uso com Paginação
@@ -146,9 +152,10 @@ GET /branches/filter?filter={"status":{"$eq":"ACTIVE"}}&page=2&size=15
   "data": [
     {
       "id": "123e4567-e89b-12d3-a456-426614174000",
-      "name": "Matriz Centro",
-      "officialId": "MAT001",
-      "sigla": "MC",
+      "taxId": "12345678000190",
+      "tradingName": "Matriz Centro",
+      "legalName": "Empresa Ltda",
+      "code": "MC",
       "email": "centro@empresa.com",
       "phone": "(11) 1234-5678",
       "responsible": "João Silva",
