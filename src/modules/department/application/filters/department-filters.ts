@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { DepartmentStatus } from '@/modules/department/domain/enums/department-status.enum';
-import { EnumUtils } from '@/shared/infrastructure/utils/enum.utils';
+import { EnumUtils } from '@/shared/infrastructure/filters/enum-utils';
 
 export interface DepartmentFilter {
   name?: { [key: string]: any };
