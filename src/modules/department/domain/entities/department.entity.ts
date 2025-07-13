@@ -1,5 +1,4 @@
 import { Entity } from '../../../../shared/core/entity';
-import { UniqueEntityID } from '../../../../shared/core/unique-entity-id';
 import { DepartmentStatus } from '../enums/department-status.enum';
 
 interface DepartmentProps {
@@ -12,11 +11,11 @@ interface DepartmentProps {
 }
 
 export class Department extends Entity<DepartmentProps> {
-  private constructor(props: DepartmentProps, id?: UniqueEntityID) {
-    super(props, id?.toString());
+  private constructor(props: DepartmentProps, id?: string) {
+    super(props, id);
   }
 
-  static create(props: DepartmentProps, id?: UniqueEntityID): Department {
+  static create(props: DepartmentProps, id?: string): Department {
     return new Department(props, id);
   }
 

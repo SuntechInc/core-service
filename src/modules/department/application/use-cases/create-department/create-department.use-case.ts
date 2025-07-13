@@ -4,7 +4,6 @@ import { Department } from '@/modules/department/domain/entities/department.enti
 import { CreateDepartmentDto } from '@/modules/department/application/dtos/create-department.dto';
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
-import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 
 @Injectable()
 export class CreateDepartmentUseCase {

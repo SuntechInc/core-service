@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/shared/infrastructure/database/prisma.service';
-import { IDepartmentRepository, PaginationOptions, PaginatedResult } from '@/modules/department/application/ports/department.repository';
+import { IDepartmentRepository } from '@/modules/department/application/ports/department.repository';
 import { Department } from '@/modules/department/domain/entities/department.entity';
 import { Prisma, Department as PrismaDepartment } from '@prisma/client';
-import { UniqueEntityID } from '@/shared/core/unique-entity-id';
 import { PAGINATION_CONSTANTS } from '@/modules/department/application/constants/pagination.constants';
+import { DepartmentFilters, DepartmentFilterOptions, DepartmentFilterResult } from '@/modules/department/application/filters/department-filters';
 
 @Injectable()
 export class PrismaDepartmentRepository extends IDepartmentRepository {
@@ -21,14 +21,13 @@ export class PrismaDepartmentRepository extends IDepartmentRepository {
       branchId: raw.branchId,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-    }, new UniqueEntityID(raw.id));
+    }, raw.id);
   }
 
   // ---------- CRUD ----------
   async create(entity: Department): Promise<Department> {
     const raw = await this.prisma.department.create({
       data: {
-        id: entity.id.toString(),
         name: entity.name,
         description: entity.description,
         status: entity.status,
@@ -54,7 +53,7 @@ export class PrismaDepartmentRepository extends IDepartmentRepository {
 
   async update(entity: Department): Promise<Department> {
     const raw = await this.prisma.department.update({
-      where: { id: entity.id.toString() },
+      where: { id: entity.id },
       data: {
         name: entity.name,
         description: entity.description,
@@ -71,52 +70,53 @@ export class PrismaDepartmentRepository extends IDepartmentRepository {
     });
   }
 
-  async findAll(): Promise<Department[]> {
-    const departments = await this.prisma.department.findMany();
-    return departments.map(department => this.toDomain(department));
-  }
 
-  async findByName(name: string): Promise<Department[]> {
-    const departments = await this.prisma.department.findMany({
+
+  async count(companyId: string): Promise<number> {
+    return this.prisma.department.count({
       where: {
-        name: {
-          contains: name,
-          mode: 'insensitive', // Case insensitive search
+        branch: {
+          companyId,
         },
       },
-      orderBy: { name: 'asc' },
     });
-    return departments.map(department => this.toDomain(department));
   }
 
-  async findAllPaginated(options: PaginationOptions): Promise<PaginatedResult<Department>> {
-    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, skip, take } = options;
+  async findWithFilters(options: DepartmentFilterOptions): Promise<DepartmentFilterResult<Department>> {
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, companyId } = options;
     
-    // Calcular skip e take baseado em page e size se não fornecidos
-    const finalSkip = skip ?? (page - 1) * size;
-    const finalTake = take ?? size;
+    const baseWhere = DepartmentFilters.buildWhere(filter);
+    const where = {
+      ...baseWhere,
+      branch: {
+        companyId,
+      },
+    };
     
-    // Limitar o tamanho máximo da página
-    const limitedTake = Math.min(finalTake, PAGINATION_CONSTANTS.MAX_SIZE);
+    const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
     
     const [departments, total] = await Promise.all([
       this.prisma.department.findMany({
-        skip: finalSkip,
-        take: limitedTake,
-        orderBy: { createdAt: 'desc' }, // Ordenar por data de criação (mais recentes primeiro)
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
       }),
-      this.prisma.department.count(),
+      this.prisma.department.count({ where }),
     ]);
+
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
 
     return {
       data: departments.map(department => this.toDomain(department)),
       total,
       page,
-      size: limitedTake,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
     };
-  }
-
-  async count(): Promise<number> {
-    return this.prisma.department.count();
   }
 } 

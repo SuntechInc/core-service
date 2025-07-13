@@ -1,30 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { IDepartmentRepository } from '@/modules/department/application/ports/department.repository';
 import { Department } from '@/modules/department/domain/entities/department.entity';
+import { UpdateDepartmentDto } from '@/modules/department/application/dtos/update-department.dto';
 import { Result } from '@/shared/core/result';
 import { AppError } from '@/shared/core/app-error';
-import { DepartmentStatus } from '@/modules/department/domain/enums/department-status.enum';
 
 @Injectable()
-export class SoftDeleteDepartmentUseCase {
+export class UpdateDepartmentUseCase {
   constructor(private readonly departmentRepository: IDepartmentRepository) {}
 
-  async execute(id: string): Promise<Result<Department>> {
+  async execute(id: string, dto: UpdateDepartmentDto): Promise<Result<Department>> {
     try {
-      const department = await this.departmentRepository.findById(id);
+      const existingDepartment = await this.departmentRepository.findById(id);
 
-      if (!department) {
+      if (!existingDepartment) {
         return Result.fail<Department>(
           new AppError('Department not found', 404),
         );
       }
 
       const updatedDepartment = Department.create({
-        name: department.name,
-        description: department.description,
-        status: DepartmentStatus.INACTIVE,
-        branchId: department.branchId,
-        createdAt: department.createdAt,
+        name: dto.name ?? existingDepartment.name,
+        description: dto.description ?? existingDepartment.description,
+        status: dto.status ?? existingDepartment.status,
+        branchId: dto.branchId ?? existingDepartment.branchId,
+        createdAt: existingDepartment.createdAt,
         updatedAt: new Date(),
       }, id);
 
