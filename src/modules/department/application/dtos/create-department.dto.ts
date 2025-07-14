@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { DepartmentStatus } from '../../domain/enums/department-status.enum';
 
 export class CreateDepartmentDto {
@@ -27,7 +27,7 @@ export class CreateDepartmentDto {
   @IsEnum(DepartmentStatus)
   status: DepartmentStatus;
 
-  @IsUUID()
+  @IsString({ message: 'Branch ID must be a string' })
   @IsNotEmpty({ message: 'the branchId is required' })
   branchId: string;
 } 

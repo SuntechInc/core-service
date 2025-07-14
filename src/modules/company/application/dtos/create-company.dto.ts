@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, MinLength, Matches, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, MinLength, Matches, IsNotEmpty } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { CompanyStatus } from '../../domain/enums/company-status.enum';
 import { Industry } from '../../domain/enums/industry.enum';
@@ -48,7 +48,7 @@ export class CreateCompanyDto {
   @IsEnum(CompanyStatus, { message: 'Invalid company status' })
   status: CompanyStatus = CompanyStatus.ACTIVE;
 
-  @IsUUID()
+  @IsString({ message: 'Address ID must be a string' })
   @IsOptional()
   addressId?: string;
 

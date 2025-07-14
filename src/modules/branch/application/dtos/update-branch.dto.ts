@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString, IsUUID, MinLength, Matches } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString, MinLength, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { BranchStatus } from '../../domain/enums/branch-status.enum';
 
@@ -51,7 +51,7 @@ export class UpdateBranchDto {
   @IsOptional()
   status?: BranchStatus;
 
-  @IsUUID()
+  @IsString({ message: 'Address ID must be a string' })
   @IsOptional()
   addressId?: string;
 } 

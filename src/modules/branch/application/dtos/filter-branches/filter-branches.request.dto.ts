@@ -1,10 +1,10 @@
-import { IsOptional, IsString, IsInt, Min, Max, IsUUID, IsNotEmpty } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PAGINATION_CONSTANTS } from '../../constants/pagination.constants';
 import { BranchFilter } from '../../filters/branch-filters';
 
 export class FilterBranchesRequestDto {
-  @IsUUID()
+  @IsString({ message: 'Company ID must be a string' })
   @IsNotEmpty({ message: 'Company ID is required' })
   companyId: string;
 
