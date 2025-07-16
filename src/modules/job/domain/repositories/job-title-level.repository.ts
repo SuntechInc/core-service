@@ -1,4 +1,5 @@
 import { JobTitleLevel } from '../entities/job-title-level.entity'
+import { JobTitleLevelFilterOptions, JobTitleLevelFilterResult } from '../../application/filters/job-title-level-filters'
 
 export abstract class IJobTitleLevelRepository {
   abstract create(jobTitleLevel: JobTitleLevel): Promise<JobTitleLevel>
@@ -12,4 +13,5 @@ export abstract class IJobTitleLevelRepository {
   ): Promise<JobTitleLevel[]>
   abstract update(jobTitleLevel: JobTitleLevel): Promise<JobTitleLevel>
   abstract delete(id: string): Promise<void>
+  abstract findWithFilters(options: JobTitleLevelFilterOptions): Promise<JobTitleLevelFilterResult<JobTitleLevel>>
 } 

@@ -13,10 +13,11 @@ import { FindAllJobTitleVersionsUseCase } from '@/modules/job/application/use-ca
 import { UpdateJobTitleVersionUseCase } from '@/modules/job/application/use-cases/update-job-title-version/update-job-title-version.use-case'
 import { DeleteJobTitleVersionUseCase } from '@/modules/job/application/use-cases/delete-job-title-version/delete-job-title-version.use-case'
 import { CreateJobTitleLevelUseCase } from '@/modules/job/application/use-cases/create-job-title-level/create-job-title-level.use-case'
-import { FindJobTitleLevelUseCase } from '@/modules/job/application/use-cases/find-job-title-level/find-job-title-level.use-case'
-import { FindAllJobTitleLevelsUseCase } from '@/modules/job/application/use-cases/find-all-job-title-levels/find-all-job-title-levels.use-case'
+
+
 import { UpdateJobTitleLevelUseCase } from '@/modules/job/application/use-cases/update-job-title-level/update-job-title-level.use-case'
 import { DeleteJobTitleLevelUseCase } from '@/modules/job/application/use-cases/delete-job-title-level/delete-job-title-level.use-case'
+import { FilterJobTitleLevelsUseCase } from '@/modules/job/application/use-cases/filter-job-title-levels/filter-job-title-levels.use-case'
 import { JobTitlePrismaRepository } from '@/modules/job/infrastructure/driven/prisma/job-title.prisma.repository'
 import { JobTitleVersionPrismaRepository } from '@/modules/job/infrastructure/driven/prisma/job-title-version.prisma.repository'
 import { JobTitleLevelPrismaRepository } from '@/modules/job/infrastructure/driven/prisma/job-title-level.prisma.repository'
@@ -61,10 +62,9 @@ import {
     UpdateJobTitleVersionUseCase,
     DeleteJobTitleVersionUseCase,
     CreateJobTitleLevelUseCase,
-    FindJobTitleLevelUseCase,
-    FindAllJobTitleLevelsUseCase,
     UpdateJobTitleLevelUseCase,
     DeleteJobTitleLevelUseCase,
+    FilterJobTitleLevelsUseCase,
   ],
   exports: [
     JOB_TITLE_REPOSITORY,
