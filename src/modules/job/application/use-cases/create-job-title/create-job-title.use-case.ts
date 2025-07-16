@@ -30,6 +30,9 @@ export class CreateJobTitleUseCase {
       const jobTitle = JobTitle.create({
         name: data.name,
         description: data.description,
+        companyId: data.companyId,
+        code: data.code,
+        branchId: data.branchId,
         createdAt: new Date(),
         updatedAt: new Date(),
         isActive: true,

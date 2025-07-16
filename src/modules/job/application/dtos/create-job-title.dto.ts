@@ -8,4 +8,16 @@ export class CreateJobTitleDto {
   @IsString()
   @IsOptional()
   description?: string
+
+  @IsString()
+  @IsNotEmpty()
+  companyId: string
+
+  @IsString()
+  @IsOptional()
+  code?: string
+
+  @IsString()
+  @IsNotEmpty()
+  branchId: string
 } 

@@ -4,6 +4,9 @@ import { UniqueEntityID } from '@/core/domain/unique-entity-id'
 interface JobTitleProps {
   name: string
   description?: string
+  companyId: string
+  code?: string
+  branchId: string
   createdAt: Date
   updatedAt: Date
   isActive: boolean
@@ -38,6 +41,18 @@ export class JobTitle extends AggregateRoot<JobTitleProps> {
 
   get description(): string | undefined {
     return this.props.description
+  }
+
+  get companyId(): string {
+    return this.props.companyId
+  }
+
+  get code(): string | undefined {
+    return this.props.code
+  }
+
+  get branchId(): string {
+    return this.props.branchId
   }
 
   get createdAt(): Date {

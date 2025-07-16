@@ -8,13 +8,20 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  Query,
+  Res,
 } from '@nestjs/common'
+import { Response } from 'express'
 import { CreateJobTitleDto } from '@/modules/job/application/dtos/create-job-title.dto'
 import { CreateJobTitleUseCase } from '@/modules/job/application/use-cases/create-job-title/create-job-title.use-case'
 import { FindJobTitleUseCase } from '@/modules/job/application/use-cases/find-job-title/find-job-title.use-case'
 import { FindAllJobTitlesUseCase } from '@/modules/job/application/use-cases/find-all-job-titles/find-all-job-titles.use-case'
 import { UpdateJobTitleUseCase } from '@/modules/job/application/use-cases/update-job-title/update-job-title.use-case'
 import { DeleteJobTitleUseCase } from '@/modules/job/application/use-cases/delete-job-title/delete-job-title.use-case'
+import { FilterJobTitlesUseCase } from '@/modules/job/application/use-cases/filter-job-titles/filter-job-titles.use-case'
+import { FilterJobTitlesRequestDto } from '@/modules/job/application/dtos/filter-job-titles/filter-job-titles.request.dto'
+import { FilterJobTitlesResponseDto } from '@/modules/job/application/dtos/filter-job-titles/filter-job-titles.response.dto'
+import { FilterPipeFactory } from '@/shared/infrastructure/filters/filter-pipe.factory'
 
 @Controller('job-titles')
 export class JobTitleController {
@@ -24,6 +31,7 @@ export class JobTitleController {
     private readonly findAllJobTitlesUseCase: FindAllJobTitlesUseCase,
     private readonly updateJobTitleUseCase: UpdateJobTitleUseCase,
     private readonly deleteJobTitleUseCase: DeleteJobTitleUseCase,
+    private readonly filterJobTitlesUseCase: FilterJobTitlesUseCase,
   ) {}
 
   @Post()
@@ -82,5 +90,26 @@ export class JobTitleController {
     if (result.isLeft()) {
       throw result.value
     }
+  }
+
+  @Get('filter')
+  async filterJobTitles(@Query(FilterPipeFactory.createJobTitleFilterPipe()) query: FilterJobTitlesRequestDto, @Res() response: Response) {
+    console.log('query.filter', query.filter);
+    
+    const result = await this.filterJobTitlesUseCase.execute(query);
+
+    const responseDto = new FilterJobTitlesResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total,
+      query.filter
+    );
+    
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(responseDto)
+    };
   }
 } 
