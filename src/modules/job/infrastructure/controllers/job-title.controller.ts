@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Post,
   Put,
   Delete,
@@ -10,12 +9,11 @@ import {
   HttpStatus,
   Query,
   Res,
+  Get,
 } from '@nestjs/common'
 import { Response } from 'express'
 import { CreateJobTitleDto } from '@/modules/job/application/dtos/create-job-title.dto'
 import { CreateJobTitleUseCase } from '@/modules/job/application/use-cases/create-job-title/create-job-title.use-case'
-import { FindJobTitleUseCase } from '@/modules/job/application/use-cases/find-job-title/find-job-title.use-case'
-import { FindAllJobTitlesUseCase } from '@/modules/job/application/use-cases/find-all-job-titles/find-all-job-titles.use-case'
 import { UpdateJobTitleUseCase } from '@/modules/job/application/use-cases/update-job-title/update-job-title.use-case'
 import { DeleteJobTitleUseCase } from '@/modules/job/application/use-cases/delete-job-title/delete-job-title.use-case'
 import { FilterJobTitlesUseCase } from '@/modules/job/application/use-cases/filter-job-titles/filter-job-titles.use-case'
@@ -27,8 +25,6 @@ import { FilterPipeFactory } from '@/shared/infrastructure/filters/filter-pipe.f
 export class JobTitleController {
   constructor(
     private readonly createJobTitleUseCase: CreateJobTitleUseCase,
-    private readonly findJobTitleUseCase: FindJobTitleUseCase,
-    private readonly findAllJobTitlesUseCase: FindAllJobTitlesUseCase,
     private readonly updateJobTitleUseCase: UpdateJobTitleUseCase,
     private readonly deleteJobTitleUseCase: DeleteJobTitleUseCase,
     private readonly filterJobTitlesUseCase: FilterJobTitlesUseCase,
@@ -44,28 +40,6 @@ export class JobTitleController {
     }
 
     return result.value.jobTitle
-  }
-
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    const result = await this.findJobTitleUseCase.execute(id)
-
-    if (result.isLeft()) {
-      throw result.value
-    }
-
-    return result.value.jobTitle
-  }
-
-  @Get()
-  async findAll() {
-    const result = await this.findAllJobTitlesUseCase.execute()
-
-    if (result.isLeft()) {
-      throw result.value
-    }
-
-    return result.value.jobTitles
   }
 
   @Put(':id')

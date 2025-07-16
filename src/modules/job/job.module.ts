@@ -3,8 +3,6 @@ import { JobTitleController } from '@/modules/job/infrastructure/controllers/job
 import { JobTitleVersionController } from '@/modules/job/infrastructure/controllers/job-title-version.controller'
 import { JobTitleLevelController } from '@/modules/job/infrastructure/controllers/job-title-level.controller'
 import { CreateJobTitleUseCase } from '@/modules/job/application/use-cases/create-job-title/create-job-title.use-case'
-import { FindJobTitleUseCase } from '@/modules/job/application/use-cases/find-job-title/find-job-title.use-case'
-import { FindAllJobTitlesUseCase } from '@/modules/job/application/use-cases/find-all-job-titles/find-all-job-titles.use-case'
 import { UpdateJobTitleUseCase } from '@/modules/job/application/use-cases/update-job-title/update-job-title.use-case'
 import { DeleteJobTitleUseCase } from '@/modules/job/application/use-cases/delete-job-title/delete-job-title.use-case'
 import { CreateJobTitleVersionUseCase } from '@/modules/job/application/use-cases/create-job-title-version/create-job-title-version.use-case'
@@ -53,8 +51,6 @@ import {
       useClass: JobTitleLevelPrismaRepository,
     },
     CreateJobTitleUseCase,
-    FindJobTitleUseCase,
-    FindAllJobTitlesUseCase,
     UpdateJobTitleUseCase,
     DeleteJobTitleUseCase,
     CreateJobTitleVersionUseCase,
