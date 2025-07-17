@@ -3,6 +3,8 @@ import { IJobTitleVersionRepository } from '@/modules/job/domain/repositories/jo
 import { JobTitleVersion } from '@/modules/job/domain/entities/job-title-version.entity'
 import { UniqueEntityID } from '@/core/domain/unique-entity-id'
 import { PrismaService } from '@/shared/infrastructure/database/prisma.service'
+import { JobTitleVersionFilters, JobTitleVersionFilterOptions, JobTitleVersionFilterResult } from '@/modules/job/application/filters/job-title-version-filters'
+import { PAGINATION_CONSTANTS } from '@/modules/job/application/constants/pagination.constants'
 
 @Injectable()
 export class JobTitleVersionPrismaRepository implements IJobTitleVersionRepository {
@@ -85,6 +87,42 @@ export class JobTitleVersionPrismaRepository implements IJobTitleVersionReposito
     await this.prisma.jobTitleVersion.delete({
       where: { id },
     })
+  }
+
+  async findWithFilters(options: JobTitleVersionFilterOptions): Promise<JobTitleVersionFilterResult<JobTitleVersion>> {
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, jobTitleId } = options;
+    
+    const baseWhere = JobTitleVersionFilters.buildWhere(filter);
+    const where = {
+      ...baseWhere,
+      ...(jobTitleId && { jobTitleId }),
+    };
+    
+    const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [jobTitleVersions, total] = await Promise.all([
+      this.prisma.jobTitleVersion.findMany({
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
+      }),
+      this.prisma.jobTitleVersion.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
+
+    return {
+      data: jobTitleVersions.map(jobTitleVersion => this.toDomain(jobTitleVersion)),
+      total,
+      page,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
   }
 
   private toDomain(raw: any): JobTitleVersion {

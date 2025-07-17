@@ -28,33 +28,21 @@ export class JobTitlePrismaRepository implements IJobTitleRepository {
   }
 
   async findById(id: string): Promise<JobTitle | null> {
-    const raw = await this.prisma.jobTitle.findUnique({
-      where: { id },
+    const result = await this.findWithFilters({
+      filter: { id: { $eq: id } },
+      take: 1,
     })
 
-    if (!raw) {
-      return null
-    }
-
-    return this.toDomain(raw)
+    return result.data.length > 0? result.data[0] : null
   }
 
   async findByName(name: string): Promise<JobTitle | null> {
-    const raw = await this.prisma.jobTitle.findFirst({
-      where: { name },
+    const result = await this.findWithFilters({
+      filter: { name: { $eq: name } },
+      take: 1,
     })
 
-    if (!raw) {
-      return null
-    }
-
-    return this.toDomain(raw)
-  }
-
-  async findAll(): Promise<JobTitle[]> {
-    const raws = await this.prisma.jobTitle.findMany()
-
-    return raws.map((raw) => this.toDomain(raw))
+    return result.data.length > 0? result.data[0] : null
   }
 
   async update(jobTitle: JobTitle): Promise<JobTitle> {
@@ -119,7 +107,7 @@ export class JobTitlePrismaRepository implements IJobTitleRepository {
         code: raw.code,
         branchId: raw.branchId,
         createdAt: raw.created_at,
-        updatedAt: raw.updated_at,
+        updatedAt: raw.created_at, // JobTitle não tem updatedAt no schema
         isActive: true,
       },
       new UniqueEntityID(raw.id_job_title),

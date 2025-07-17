@@ -67,6 +67,16 @@ export class FilterPipeFactory {
   }
 
   /**
+   * Cria um pipe de filtro para job title versions
+   */
+  static createJobTitleVersionFilterPipe(): ParseFilterPipe {
+    return new ParseFilterPipe({
+      booleanFields: [],
+      idFields: ['jobTitleId']
+    });
+  }
+
+  /**
    * Cria um pipe de filtro customizado
    */
   static createCustomFilterPipe(options: FilterPipeOptions): ParseFilterPipe {

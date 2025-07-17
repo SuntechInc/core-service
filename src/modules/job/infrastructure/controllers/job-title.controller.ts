@@ -80,10 +80,8 @@ export class JobTitleController {
       query.filter
     );
     
-    return {
-      response: response
-        .status(HttpStatus.OK)
-        .json(responseDto)
-    };
+    return response
+      .status(HttpStatus.OK)
+      .json(responseDto);
   }
 } 
