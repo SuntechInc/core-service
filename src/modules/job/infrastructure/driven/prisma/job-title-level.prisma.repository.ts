@@ -21,6 +21,16 @@ export class JobTitleLevelPrismaRepository implements IJobTitleLevelRepository {
             id: jobTitleLevel.jobTitleVersionId.toString(),
           },
         },
+        company: {
+          connect: {
+            id: jobTitleLevel.companyId.toString(),
+          },
+        },
+        branch: {
+          connect: {
+            id: jobTitleLevel.branchId.toString(),
+          },
+        },
         label: jobTitleLevel.label,
         rank: jobTitleLevel.rank,
         salaryMin: jobTitleLevel.salaryMin,
@@ -131,6 +141,8 @@ export class JobTitleLevelPrismaRepository implements IJobTitleLevelRepository {
     return JobTitleLevel.create(
       {
         jobTitleVersionId: raw.jobTitleVersionId,
+        companyId: raw.companyId,
+        branchId: raw.branchId,
         label: raw.label,
         rank: raw.rank,
         salaryMin: raw.salaryMin,

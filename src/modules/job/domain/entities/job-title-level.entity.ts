@@ -3,6 +3,8 @@ import { UniqueEntityID } from '@/core/domain/unique-entity-id'
 
 interface JobTitleLevelProps {
   jobTitleVersionId: string
+  companyId: string
+  branchId: string
   label: string
   rank: number
   salaryMin: number
@@ -35,6 +37,14 @@ export class JobTitleLevel extends AggregateRoot<JobTitleLevelProps> {
 
   get jobTitleVersionId(): string {
     return this.props.jobTitleVersionId
+  }
+
+  get companyId(): string {
+    return this.props.companyId
+  }
+
+  get branchId(): string {
+    return this.props.branchId
   }
 
   get label(): string {

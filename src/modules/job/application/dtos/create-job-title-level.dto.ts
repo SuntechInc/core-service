@@ -7,6 +7,14 @@ export class CreateJobTitleLevelDto {
 
   @IsString()
   @IsNotEmpty()
+  companyId: string
+
+  @IsString()
+  @IsNotEmpty()
+  branchId: string
+
+  @IsString()
+  @IsNotEmpty()
   label: string
 
   @IsNumber()

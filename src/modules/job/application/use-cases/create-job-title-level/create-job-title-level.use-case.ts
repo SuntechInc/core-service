@@ -34,6 +34,8 @@ export class CreateJobTitleLevelUseCase {
 
       const jobTitleLevel = JobTitleLevel.create({
         jobTitleVersionId: data.jobTitleVersionId,
+        companyId: data.companyId,
+        branchId: data.branchId,
         label: data.label,
         rank: data.rank,
         salaryMin: data.salaryMin,
