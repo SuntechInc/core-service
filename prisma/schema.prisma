@@ -116,6 +116,8 @@ model Company {
     updatedAt     DateTime      @updatedAt @map("updated_at")
 
     branches Branch[]
+    employeeJobTitleHistory EmployeeJobTitleHistory[]
+    jobTitleLevels JobTitleLevel[]
 
     @@unique([legalName, taxId])
     @@map("companies")
@@ -145,6 +147,8 @@ model Branch {
     departments Department[]
     employees   Employee[]
     jobTitles   JobTitle[]
+    employeeJobTitleHistory EmployeeJobTitleHistory[]
+    jobTitleLevels JobTitleLevel[]
 
     @@unique([legalName, tradingName, companyId, code])
     @@map("branches")
@@ -239,19 +243,27 @@ model JobTitleVersion {
 model EmployeeJobTitleHistory {
     employeeId        String    @map("id_employee")
     jobTitleVersionId String    @map("id_job_title_version")
+    companyId         String    @map("id_company")
+    branchId          String    @map("id_branch")
     assignedAt        DateTime  @default(now()) @map("assigned_at")
     removedAt         DateTime? @map("removed_at")
 
     employee        Employee        @relation(fields: [employeeId], references: [id])
     jobTitleVersion JobTitleVersion @relation(fields: [jobTitleVersionId], references: [id])
+    company         Company         @relation(fields: [companyId], references: [id])
+    branch          Branch          @relation(fields: [branchId], references: [id])
 
     @@id([employeeId, jobTitleVersionId, assignedAt])
+    @@index([companyId])
+    @@index([branchId])
     @@map("employee_job_title_history")
 }
 
 model JobTitleLevel {
     id                String   @id @default(cuid()) @map("id_job_title_level")
     jobTitleVersionId String   @map("id_job_title_version")
+    companyId         String   @map("id_company")
+    branchId          String   @map("id_branch")
     label             String   @map("label") @db.VarChar(60)
     rank              Int?     @map("rank")
     salaryMin         Decimal? @map("salary_min") @db.Decimal(12, 2)
@@ -260,9 +272,13 @@ model JobTitleLevel {
     updatedAt         DateTime @updatedAt @map("updated_at")
 
     jobTitleVersion JobTitleVersion @relation(fields: [jobTitleVersionId], references: [id], onDelete: Cascade)
+    company         Company         @relation(fields: [companyId], references: [id])
+    branch          Branch          @relation(fields: [branchId], references: [id])
 
     @@unique([jobTitleVersionId, label])
     @@index([jobTitleVersionId, label])
+    @@index([companyId])
+    @@index([branchId])
     @@map("job_title_levels")
 }
 

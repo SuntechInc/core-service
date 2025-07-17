@@ -121,13 +121,18 @@ export class EmployeePrismaRepository extends IEmployeeRepository {
   }
 
   async findWithFilters(options: EmployeeFilterOptions): Promise<EmployeeFilterResult<Employee>> {
-    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, branchId, departmentId } = options;
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, branchId, departmentId, companyId } = options;
     
     const baseWhere = EmployeeFilters.buildWhere(filter);
     const where = {
       ...baseWhere,
       ...(branchId && { branchId }),
       ...(departmentId && { departmentId }),
+      ...(companyId && {
+        branch: {
+          companyId, // Filtra através da relação branch -> company
+        },
+      }),
     };
     
     const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);

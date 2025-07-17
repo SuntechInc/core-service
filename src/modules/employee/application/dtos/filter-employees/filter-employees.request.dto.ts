@@ -26,4 +26,8 @@ export class FilterEmployeesRequestDto {
   @IsOptional()
   @IsString()
   departmentId?: string;
+
+  @IsOptional()
+  @IsString()
+  companyId?: string;
 } 

@@ -10,6 +10,7 @@ export interface JobTitleVersionFilterOptions {
   orderBy?: Prisma.JobTitleVersionOrderByWithRelationInput;
   include?: Prisma.JobTitleVersionInclude;
   jobTitleId?: string;
+  companyId?: string;
 }
 
 export interface JobTitleVersionFilterResult<T> {

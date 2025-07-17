@@ -11,6 +11,7 @@ export interface EmployeeFilterOptions {
   include?: Prisma.EmployeeInclude;
   branchId?: string;
   departmentId?: string;
+  companyId?: string;
 }
 
 export interface EmployeeFilterResult<T> {

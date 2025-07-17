@@ -14,7 +14,7 @@ export class FilterEmployeesUseCase {
   ) {}
 
   async execute(request: FilterEmployeesRequestDto): Promise<EmployeeFilterResult<Employee>> {
-    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, filter, branchId, departmentId } = request;
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, filter, branchId, departmentId, companyId } = request;
     
     const normalizedPage = Math.max(PAGINATION_CONSTANTS.MIN_PAGE, page);
     const normalizedSize = Math.min(Math.max(PAGINATION_CONSTANTS.MIN_SIZE, size), PAGINATION_CONSTANTS.MAX_SIZE);
@@ -31,6 +31,7 @@ export class FilterEmployeesUseCase {
       orderBy: { createdAt: 'desc' },
       branchId,
       departmentId,
+      companyId,
     };
 
     const result = await this.employeeRepository.findWithFilters(options);

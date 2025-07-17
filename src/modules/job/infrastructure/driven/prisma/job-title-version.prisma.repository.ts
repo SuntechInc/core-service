@@ -13,6 +13,21 @@ export class JobTitleVersionPrismaRepository implements IJobTitleVersionReposito
     private readonly prisma: PrismaService,
   ) {}
 
+  private toDomain(raw: any): JobTitleVersion {
+    return JobTitleVersion.create(
+      {
+        jobTitleId: raw.jobTitleId,
+        version: raw.version,
+        description: raw.description,
+        responsibilities: raw.responsibilities ? raw.responsibilities.split(',') : [],
+        requirements: raw.requirements ? raw.requirements.split(',') : [],
+        createdAt: raw.created_at,
+        updatedAt: raw.updated_at,
+      },
+      new UniqueEntityID(raw.id_job_title_version),
+    )
+  }
+
   async create(jobTitleVersion: JobTitleVersion): Promise<JobTitleVersion> {
     const raw = await this.prisma.jobTitleVersion.create({
       data: {
@@ -90,12 +105,17 @@ export class JobTitleVersionPrismaRepository implements IJobTitleVersionReposito
   }
 
   async findWithFilters(options: JobTitleVersionFilterOptions): Promise<JobTitleVersionFilterResult<JobTitleVersion>> {
-    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, jobTitleId } = options;
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, jobTitleId, companyId } = options;
     
     const baseWhere = JobTitleVersionFilters.buildWhere(filter);
     const where = {
       ...baseWhere,
       ...(jobTitleId && { jobTitleId }),
+      ...(companyId && {
+        jobTitle: {
+          companyId, // Filtra através da relação jobTitle -> company
+        },
+      }),
     };
     
     const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
@@ -123,20 +143,5 @@ export class JobTitleVersionPrismaRepository implements IJobTitleVersionReposito
       hasNext: page < totalPages,
       hasPrevious: page > 1,
     };
-  }
-
-  private toDomain(raw: any): JobTitleVersion {
-    return JobTitleVersion.create(
-      {
-        jobTitleId: raw.jobTitleId,
-        version: raw.version,
-        description: raw.description,
-        responsibilities: raw.responsibilities ? raw.responsibilities.split(',') : [],
-        requirements: raw.requirements ? raw.requirements.split(',') : [],
-        createdAt: raw.created_at,
-        updatedAt: raw.updated_at,
-      },
-      new UniqueEntityID(raw.id_job_title_version),
-    )
   }
 } 

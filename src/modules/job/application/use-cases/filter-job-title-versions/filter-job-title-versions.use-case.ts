@@ -14,7 +14,7 @@ export class FilterJobTitleVersionsUseCase {
   ) {}
 
   async execute(request: FilterJobTitleVersionsRequestDto): Promise<JobTitleVersionFilterResult<JobTitleVersion>> {
-    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, filter, jobTitleId } = request;
+    const { page = PAGINATION_CONSTANTS.DEFAULT_PAGE, size = PAGINATION_CONSTANTS.DEFAULT_SIZE, filter, jobTitleId, companyId } = request;
     
     const normalizedPage = Math.max(PAGINATION_CONSTANTS.MIN_PAGE, page);
     const normalizedSize = Math.min(Math.max(PAGINATION_CONSTANTS.MIN_SIZE, size), PAGINATION_CONSTANTS.MAX_SIZE);
@@ -30,6 +30,7 @@ export class FilterJobTitleVersionsUseCase {
       take,
       orderBy: { createdAt: 'desc' },
       jobTitleId,
+      companyId,
     };
 
     const result = await this.jobTitleVersionRepository.findWithFilters(options);

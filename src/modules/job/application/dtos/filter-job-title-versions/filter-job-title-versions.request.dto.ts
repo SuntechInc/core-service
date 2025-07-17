@@ -22,4 +22,8 @@ export class FilterJobTitleVersionsRequestDto {
   @IsOptional()
   @IsString()
   jobTitleId?: string;
+
+  @IsOptional()
+  @IsString()
+  companyId?: string;
 } 
