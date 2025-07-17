@@ -77,6 +77,16 @@ export class FilterPipeFactory {
   }
 
   /**
+   * Cria um pipe de filtro para employees
+   */
+  static createEmployeeFilterPipe(): ParseFilterPipe {
+    return new ParseFilterPipe({
+      booleanFields: [],
+      idFields: ['branchId', 'departmentId']
+    });
+  }
+
+  /**
    * Cria um pipe de filtro customizado
    */
   static createCustomFilterPipe(options: FilterPipeOptions): ParseFilterPipe {
