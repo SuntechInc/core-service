@@ -47,6 +47,46 @@ export class FilterPipeFactory {
   }
 
   /**
+   * Cria um pipe de filtro para job title levels
+   */
+  static createJobTitleLevelFilterPipe(): ParseFilterPipe {
+    return new ParseFilterPipe({
+      booleanFields: [],
+      idFields: ['jobTitleVersionId']
+    });
+  }
+
+  /**
+   * Cria um pipe de filtro para job titles
+   */
+  static createJobTitleFilterPipe(): ParseFilterPipe {
+    return new ParseFilterPipe({
+      booleanFields: [],
+      idFields: ['companyId', 'branchId']
+    });
+  }
+
+  /**
+   * Cria um pipe de filtro para job title versions
+   */
+  static createJobTitleVersionFilterPipe(): ParseFilterPipe {
+    return new ParseFilterPipe({
+      booleanFields: [],
+      idFields: ['jobTitleId']
+    });
+  }
+
+  /**
+   * Cria um pipe de filtro para employees
+   */
+  static createEmployeeFilterPipe(): ParseFilterPipe {
+    return new ParseFilterPipe({
+      booleanFields: [],
+      idFields: ['branchId', 'departmentId']
+    });
+  }
+
+  /**
    * Cria um pipe de filtro customizado
    */
   static createCustomFilterPipe(options: FilterPipeOptions): ParseFilterPipe {

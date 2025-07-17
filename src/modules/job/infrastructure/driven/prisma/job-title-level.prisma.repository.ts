@@ -3,6 +3,8 @@ import { IJobTitleLevelRepository } from '@/modules/job/domain/repositories/job-
 import { JobTitleLevel } from '@/modules/job/domain/entities/job-title-level.entity'
 import { UniqueEntityID } from '@/core/domain/unique-entity-id'
 import { PrismaService } from '@/shared/infrastructure/database/prisma.service'
+import { JobTitleLevelFilters, JobTitleLevelFilterOptions, JobTitleLevelFilterResult } from '@/modules/job/application/filters/job-title-level-filters'
+import { PAGINATION_CONSTANTS } from '@/modules/job/application/constants/pagination.constants'
 
 @Injectable()
 export class JobTitleLevelPrismaRepository implements IJobTitleLevelRepository {
@@ -87,6 +89,42 @@ export class JobTitleLevelPrismaRepository implements IJobTitleLevelRepository {
     await this.prisma.jobTitleLevel.delete({
       where: { id },
     })
+  }
+
+  async findWithFilters(options: JobTitleLevelFilterOptions): Promise<JobTitleLevelFilterResult<JobTitleLevel>> {
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, jobTitleVersionId } = options;
+    
+    const baseWhere = JobTitleLevelFilters.buildWhere(filter);
+    const where = {
+      ...baseWhere,
+      ...(jobTitleVersionId && { jobTitleVersionId }),
+    };
+    
+    const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [jobTitleLevels, total] = await Promise.all([
+      this.prisma.jobTitleLevel.findMany({
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
+      }),
+      this.prisma.jobTitleLevel.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
+
+    return {
+      data: jobTitleLevels.map(jobTitleLevel => this.toDomain(jobTitleLevel)),
+      total,
+      page,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
   }
 
   private toDomain(raw: any): JobTitleLevel {

@@ -8,22 +8,26 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  Query,
+  Res,
 } from '@nestjs/common'
+import { Response } from 'express'
 import { CreateJobTitleVersionDto } from '@/modules/job/application/dtos/create-job-title-version.dto'
 import { CreateJobTitleVersionUseCase } from '@/modules/job/application/use-cases/create-job-title-version/create-job-title-version.use-case'
-import { FindJobTitleVersionUseCase } from '@/modules/job/application/use-cases/find-job-title-version/find-job-title-version.use-case'
-import { FindAllJobTitleVersionsUseCase } from '@/modules/job/application/use-cases/find-all-job-title-versions/find-all-job-title-versions.use-case'
 import { UpdateJobTitleVersionUseCase } from '@/modules/job/application/use-cases/update-job-title-version/update-job-title-version.use-case'
 import { DeleteJobTitleVersionUseCase } from '@/modules/job/application/use-cases/delete-job-title-version/delete-job-title-version.use-case'
+import { FilterJobTitleVersionsUseCase } from '@/modules/job/application/use-cases/filter-job-title-versions/filter-job-title-versions.use-case'
+import { FilterJobTitleVersionsRequestDto } from '@/modules/job/application/dtos/filter-job-title-versions/filter-job-title-versions.request.dto'
+import { FilterJobTitleVersionsResponseDto } from '@/modules/job/application/dtos/filter-job-title-versions/filter-job-title-versions.response.dto'
+import { FilterPipeFactory } from '@/shared/infrastructure/filters/filter-pipe.factory'
 
 @Controller('job-title-versions')
 export class JobTitleVersionController {
   constructor(
     private readonly createJobTitleVersionUseCase: CreateJobTitleVersionUseCase,
-    private readonly findJobTitleVersionUseCase: FindJobTitleVersionUseCase,
-    private readonly findAllJobTitleVersionsUseCase: FindAllJobTitleVersionsUseCase,
     private readonly updateJobTitleVersionUseCase: UpdateJobTitleVersionUseCase,
     private readonly deleteJobTitleVersionUseCase: DeleteJobTitleVersionUseCase,
+    private readonly filterJobTitleVersionsUseCase: FilterJobTitleVersionsUseCase,
   ) {}
 
   @Post()
@@ -36,28 +40,6 @@ export class JobTitleVersionController {
     }
 
     return result.value.jobTitleVersion
-  }
-
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    const result = await this.findJobTitleVersionUseCase.execute(id)
-
-    if (result.isLeft()) {
-      throw result.value
-    }
-
-    return result.value.jobTitleVersion
-  }
-
-  @Get('job-title/:jobTitleId')
-  async findAllByJobTitleId(@Param('jobTitleId') jobTitleId: string) {
-    const result = await this.findAllJobTitleVersionsUseCase.execute(jobTitleId)
-
-    if (result.isLeft()) {
-      throw result.value
-    }
-
-    return result.value.jobTitleVersions
   }
 
   @Put(':id')
@@ -82,5 +64,22 @@ export class JobTitleVersionController {
     if (result.isLeft()) {
       throw result.value
     }
+  }
+
+  @Get('filter')
+  async filterJobTitleVersions(@Query(FilterPipeFactory.createJobTitleVersionFilterPipe()) query: FilterJobTitleVersionsRequestDto, @Res() response: Response) {
+    const result = await this.filterJobTitleVersionsUseCase.execute(query);
+
+    const responseDto = new FilterJobTitleVersionsResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total,
+      query.filter
+    );
+    
+    return response
+      .status(HttpStatus.OK)
+      .json(responseDto);
   }
 } 

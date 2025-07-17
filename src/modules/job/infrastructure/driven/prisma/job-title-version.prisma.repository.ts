@@ -3,6 +3,8 @@ import { IJobTitleVersionRepository } from '@/modules/job/domain/repositories/jo
 import { JobTitleVersion } from '@/modules/job/domain/entities/job-title-version.entity'
 import { UniqueEntityID } from '@/core/domain/unique-entity-id'
 import { PrismaService } from '@/shared/infrastructure/database/prisma.service'
+import { JobTitleVersionFilters, JobTitleVersionFilterOptions, JobTitleVersionFilterResult } from '@/modules/job/application/filters/job-title-version-filters'
+import { PAGINATION_CONSTANTS } from '@/modules/job/application/constants/pagination.constants'
 
 @Injectable()
 export class JobTitleVersionPrismaRepository implements IJobTitleVersionRepository {
@@ -10,6 +12,21 @@ export class JobTitleVersionPrismaRepository implements IJobTitleVersionReposito
     @Inject(PrismaService)
     private readonly prisma: PrismaService,
   ) {}
+
+  private toDomain(raw: any): JobTitleVersion {
+    return JobTitleVersion.create(
+      {
+        jobTitleId: raw.jobTitleId,
+        version: raw.version,
+        description: raw.description,
+        responsibilities: raw.responsibilities ? raw.responsibilities.split(',') : [],
+        requirements: raw.requirements ? raw.requirements.split(',') : [],
+        createdAt: raw.created_at,
+        updatedAt: raw.updated_at,
+      },
+      new UniqueEntityID(raw.id_job_title_version),
+    )
+  }
 
   async create(jobTitleVersion: JobTitleVersion): Promise<JobTitleVersion> {
     const raw = await this.prisma.jobTitleVersion.create({
@@ -87,18 +104,44 @@ export class JobTitleVersionPrismaRepository implements IJobTitleVersionReposito
     })
   }
 
-  private toDomain(raw: any): JobTitleVersion {
-    return JobTitleVersion.create(
-      {
-        jobTitleId: raw.jobTitleId,
-        version: raw.version,
-        description: raw.description,
-        responsibilities: raw.responsibilities ? raw.responsibilities.split(',') : [],
-        requirements: raw.requirements ? raw.requirements.split(',') : [],
-        createdAt: raw.created_at,
-        updatedAt: raw.updated_at,
-      },
-      new UniqueEntityID(raw.id_job_title_version),
-    )
+  async findWithFilters(options: JobTitleVersionFilterOptions): Promise<JobTitleVersionFilterResult<JobTitleVersion>> {
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, jobTitleId, companyId } = options;
+    
+    const baseWhere = JobTitleVersionFilters.buildWhere(filter);
+    const where = {
+      ...baseWhere,
+      ...(jobTitleId && { jobTitleId }),
+      ...(companyId && {
+        jobTitle: {
+          companyId, // Filtra através da relação jobTitle -> company
+        },
+      }),
+    };
+    
+    const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [jobTitleVersions, total] = await Promise.all([
+      this.prisma.jobTitleVersion.findMany({
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
+      }),
+      this.prisma.jobTitleVersion.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
+
+    return {
+      data: jobTitleVersions.map(jobTitleVersion => this.toDomain(jobTitleVersion)),
+      total,
+      page,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
   }
 } 

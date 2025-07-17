@@ -20,10 +20,12 @@ export class FindAllJobTitlesUseCase {
 
   async execute(): Promise<FindAllJobTitlesUseCaseResponse> {
     try {
-      const jobTitles = await this.jobTitleRepository.findAll()
+      const result = await this.jobTitleRepository.findWithFilters({
+        take: 10000, // Número grande para pegar todos
+      })
 
       return right({
-        jobTitles,
+        jobTitles: result.data,
       })
     } catch (error) {
       return left(error as Error)

@@ -8,22 +8,28 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  Query,
+  Res,
 } from '@nestjs/common'
+import { Response } from 'express'
 import { CreateJobTitleLevelDto } from '@/modules/job/application/dtos/create-job-title-level.dto'
 import { CreateJobTitleLevelUseCase } from '@/modules/job/application/use-cases/create-job-title-level/create-job-title-level.use-case'
-import { FindJobTitleLevelUseCase } from '@/modules/job/application/use-cases/find-job-title-level/find-job-title-level.use-case'
-import { FindAllJobTitleLevelsUseCase } from '@/modules/job/application/use-cases/find-all-job-title-levels/find-all-job-title-levels.use-case'
+
+
 import { UpdateJobTitleLevelUseCase } from '@/modules/job/application/use-cases/update-job-title-level/update-job-title-level.use-case'
 import { DeleteJobTitleLevelUseCase } from '@/modules/job/application/use-cases/delete-job-title-level/delete-job-title-level.use-case'
+import { FilterJobTitleLevelsUseCase } from '@/modules/job/application/use-cases/filter-job-title-levels/filter-job-title-levels.use-case'
+import { FilterJobTitleLevelsRequestDto } from '@/modules/job/application/dtos/filter-job-title-levels/filter-job-title-levels.request.dto'
+import { FilterJobTitleLevelsResponseDto } from '@/modules/job/application/dtos/filter-job-title-levels/filter-job-title-levels.response.dto'
+import { FilterPipeFactory } from '@/shared/infrastructure/filters/filter-pipe.factory'
 
 @Controller('job-title-levels')
 export class JobTitleLevelController {
   constructor(
     private readonly createJobTitleLevelUseCase: CreateJobTitleLevelUseCase,
-    private readonly findJobTitleLevelUseCase: FindJobTitleLevelUseCase,
-    private readonly findAllJobTitleLevelsUseCase: FindAllJobTitleLevelsUseCase,
     private readonly updateJobTitleLevelUseCase: UpdateJobTitleLevelUseCase,
     private readonly deleteJobTitleLevelUseCase: DeleteJobTitleLevelUseCase,
+    private readonly filterJobTitleLevelsUseCase: FilterJobTitleLevelsUseCase,
   ) {}
 
   @Post()
@@ -38,31 +44,9 @@ export class JobTitleLevelController {
     return result.value.jobTitleLevel
   }
 
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    const result = await this.findJobTitleLevelUseCase.execute(id)
 
-    if (result.isLeft()) {
-      throw result.value
-    }
 
-    return result.value.jobTitleLevel
-  }
 
-  @Get('job-title-version/:jobTitleVersionId')
-  async findAllByJobTitleVersionId(
-    @Param('jobTitleVersionId') jobTitleVersionId: string,
-  ) {
-    const result = await this.findAllJobTitleLevelsUseCase.execute(
-      jobTitleVersionId,
-    )
-
-    if (result.isLeft()) {
-      throw result.value
-    }
-
-    return result.value.jobTitleLevels
-  }
 
   @Put(':id')
   async update(
@@ -86,5 +70,26 @@ export class JobTitleLevelController {
     if (result.isLeft()) {
       throw result.value
     }
+  }
+
+  @Get('filter')
+  async filterJobTitleLevels(@Query(FilterPipeFactory.createJobTitleLevelFilterPipe()) query: FilterJobTitleLevelsRequestDto, @Res() response: Response) {
+    console.log('query.filter', query.filter);
+    
+    const result = await this.filterJobTitleLevelsUseCase.execute(query);
+
+    const responseDto = new FilterJobTitleLevelsResponseDto(
+      result.data,
+      result.page,
+      result.size,
+      result.total,
+      query.filter
+    );
+    
+    return {
+      response: response
+        .status(HttpStatus.OK)
+        .json(responseDto)
+    };
   }
 } 

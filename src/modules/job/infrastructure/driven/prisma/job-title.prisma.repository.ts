@@ -4,6 +4,8 @@ import { JobTitle } from '@/modules/job/domain/entities/job-title.entity'
 import { JobTitleStatus } from '@/modules/job/domain/enums/job-title-status.enum'
 import { UniqueEntityID } from '@/core/domain/unique-entity-id'
 import { PrismaService } from '@/shared/infrastructure/database/prisma.service'
+import { JobTitleFilters, JobTitleFilterOptions, JobTitleFilterResult } from '@/modules/job/application/filters/job-title-filters'
+import { PAGINATION_CONSTANTS } from '@/modules/job/application/constants/pagination.constants'
 
 @Injectable()
 export class JobTitlePrismaRepository implements IJobTitleRepository {
@@ -13,19 +15,12 @@ export class JobTitlePrismaRepository implements IJobTitleRepository {
   ) {}
 
   async create(jobTitle: JobTitle): Promise<JobTitle> {
-    // TODO: Get companyId and branchId from request context
-    const companyId = '' // Get from context
-    const branchId = '' // Get from context
-
     const raw = await this.prisma.jobTitle.create({
       data: {
         name: jobTitle.name,
-        companyId,
-        branch: {
-          connect: {
-            id: branchId,
-          },
-        },
+        companyId: jobTitle.companyId,
+        code: jobTitle.code,
+        branchId: jobTitle.branchId,
       },
     })
 
@@ -33,33 +28,21 @@ export class JobTitlePrismaRepository implements IJobTitleRepository {
   }
 
   async findById(id: string): Promise<JobTitle | null> {
-    const raw = await this.prisma.jobTitle.findUnique({
-      where: { id },
+    const result = await this.findWithFilters({
+      filter: { id: { $eq: id } },
+      take: 1,
     })
 
-    if (!raw) {
-      return null
-    }
-
-    return this.toDomain(raw)
+    return result.data.length > 0? result.data[0] : null
   }
 
   async findByName(name: string): Promise<JobTitle | null> {
-    const raw = await this.prisma.jobTitle.findFirst({
-      where: { name },
+    const result = await this.findWithFilters({
+      filter: { name: { $eq: name } },
+      take: 1,
     })
 
-    if (!raw) {
-      return null
-    }
-
-    return this.toDomain(raw)
-  }
-
-  async findAll(): Promise<JobTitle[]> {
-    const raws = await this.prisma.jobTitle.findMany()
-
-    return raws.map((raw) => this.toDomain(raw))
+    return result.data.length > 0? result.data[0] : null
   }
 
   async update(jobTitle: JobTitle): Promise<JobTitle> {
@@ -79,12 +62,52 @@ export class JobTitlePrismaRepository implements IJobTitleRepository {
     })
   }
 
+  async findWithFilters(options: JobTitleFilterOptions): Promise<JobTitleFilterResult<JobTitle>> {
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, companyId, branchId } = options;
+    
+    const baseWhere = JobTitleFilters.buildWhere(filter);
+    const where = {
+      ...baseWhere,
+      ...(companyId && { companyId }),
+      ...(branchId && { branchId }),
+    };
+    
+    const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [jobTitles, total] = await Promise.all([
+      this.prisma.jobTitle.findMany({
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
+      }),
+      this.prisma.jobTitle.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
+
+    return {
+      data: jobTitles.map(jobTitle => this.toDomain(jobTitle)),
+      total,
+      page,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
+  }
+
   private toDomain(raw: any): JobTitle {
     return JobTitle.create(
       {
         name: raw.name,
+        companyId: raw.companyId,
+        code: raw.code,
+        branchId: raw.branchId,
         createdAt: raw.created_at,
-        updatedAt: raw.created_at,
+        updatedAt: raw.created_at, // JobTitle não tem updatedAt no schema
         isActive: true,
       },
       new UniqueEntityID(raw.id_job_title),

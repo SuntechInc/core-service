@@ -6,6 +6,8 @@ import { EmployeeStatus } from '@/modules/employee/domain/enums/employee-status.
 import { IEmployeeRepository } from '@/modules/employee/application/repositories/employee.repository'
 import { UniqueEntityID } from '@/core/domain/unique-entity-id'
 import { Prisma, Employee as PrismaEmployee, EmploymentType as PrismaEmploymentType, EmployeeStatus as PrismaEmployeeStatus } from '@prisma/client'
+import { EmployeeFilters, EmployeeFilterOptions, EmployeeFilterResult } from '@/modules/employee/application/filters/employee-filters'
+import { PAGINATION_CONSTANTS } from '@/modules/employee/application/constants/pagination.constants'
 
 @Injectable()
 export class EmployeePrismaRepository extends IEmployeeRepository {
@@ -116,5 +118,47 @@ export class EmployeePrismaRepository extends IEmployeeRepository {
     await this.prisma.employee.delete({
       where: { id },
     })
+  }
+
+  async findWithFilters(options: EmployeeFilterOptions): Promise<EmployeeFilterResult<Employee>> {
+    const { filter, skip = 0, take = PAGINATION_CONSTANTS.DEFAULT_SIZE, orderBy, include, branchId, departmentId, companyId } = options;
+    
+    const baseWhere = EmployeeFilters.buildWhere(filter);
+    const where = {
+      ...baseWhere,
+      ...(branchId && { branchId }),
+      ...(departmentId && { departmentId }),
+      ...(companyId && {
+        branch: {
+          companyId, // Filtra através da relação branch -> company
+        },
+      }),
+    };
+    
+    const finalTake = Math.min(take, PAGINATION_CONSTANTS.MAX_SIZE);
+    
+    const [employees, total] = await Promise.all([
+      this.prisma.employee.findMany({
+        where,
+        skip,
+        take: finalTake,
+        orderBy: orderBy || { createdAt: 'desc' },
+        include,
+      }),
+      this.prisma.employee.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / finalTake) + 1;
+    const totalPages = Math.ceil(total / finalTake);
+
+    return {
+      data: employees.map(employee => this.toDomain(employee)),
+      total,
+      page,
+      size: finalTake,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
   }
 } 
