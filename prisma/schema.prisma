@@ -74,6 +74,11 @@ enum EmployeeStatus {
     OBSOLETE
 }
 
+enum TenantModuleStatus {
+    ENABLED
+    DISABLED
+}
+
 // Models
 model Address {
     id           String  @id @default(cuid()) @map("id_address")
@@ -115,12 +120,44 @@ model Company {
     createdAt     DateTime      @default(now()) @map("created_at")
     updatedAt     DateTime      @updatedAt @map("updated_at")
 
-    branches Branch[]
+    branches                Branch[]
     employeeJobTitleHistory EmployeeJobTitleHistory[]
-    jobTitleLevels JobTitleLevel[]
+    jobTitleLevels          JobTitleLevel[]
+    TenantModule            TenantModule[]
 
     @@unique([legalName, taxId])
     @@map("companies")
+}
+
+model Module {
+    id          String   @id @default(cuid()) @map("id_module")
+    code        String   @unique @map("module_code")
+    name        String   @map("module_name")
+    description String?  @map("module_description")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    tenantModules TenantModule[]
+
+    @@map("modules")
+}
+
+model TenantModule {
+    companyId String   @map("id_company")
+    moduleId  String   @map("id_module")
+    segment   Segment  @map("segment") 
+    status    TenantModuleStatus @default(ENABLED) @map("module_status")
+    enabledAt DateTime @default(now()) @map("enabled_at")
+    disabledAt DateTime? @map("disabled_at")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    
+
+    company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    module  Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+    @@id([companyId, moduleId])
+    @@map("tenant_modules")
 }
 
 model Branch {
@@ -144,11 +181,11 @@ model Branch {
     company   Company @relation(fields: [companyId], references: [id])
     companyId String  @map("id_company")
 
-    departments Department[]
-    employees   Employee[]
-    jobTitles   JobTitle[]
+    departments             Department[]
+    employees               Employee[]
+    jobTitles               JobTitle[]
     employeeJobTitleHistory EmployeeJobTitleHistory[]
-    jobTitleLevels JobTitleLevel[]
+    jobTitleLevels          JobTitleLevel[]
 
     @@unique([legalName, tradingName, companyId, code])
     @@map("branches")

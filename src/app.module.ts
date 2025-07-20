@@ -6,6 +6,7 @@ import { BranchModule } from './modules/branch/branch.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { JobModule } from './modules/job/job.module';
 import { EmployeeModule } from './modules/employee/employee.module';
+import { TenantModuleModule } from './modules/tenant-module/tenant-module.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -19,6 +20,7 @@ import { HealthController } from './health/health.controller';
     DepartmentModule,
     JobModule,
     EmployeeModule,
+    TenantModuleModule,
   ],
   controllers: [HealthController],
   providers: [],
